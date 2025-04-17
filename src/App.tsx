@@ -1,25 +1,53 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useMemo } from "react";
+import { deepmerge } from "@mui/utils";
+import { BrowserRouter } from "react-router-dom";
+import { Box, CssBaseline, GlobalStyles } from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// import MainRoutes from "./routes/MainRoutes";
+
+// import GlobalError from "components/GlobalError/GlobalError.tsx";
+// import { ErrorProvider } from "./context/ErrorContextProvider.tsx";
+import { NewTheme, themeSettings } from "./theme";
+import MainRoutes from "./routes/MainRoutes";
 
 function App() {
+  const customTheme = deepmerge(themeSettings(), NewTheme);
+  const theme = useMemo(() => createTheme(customTheme), [customTheme]);
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    // <ErrorProvider>
+    <Box>
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <GlobalStyles
+              styles={{
+                "@global": {
+                  "html, body, #root": {
+                    height: "100%",
+                    width: "100%",
+                  },
+                },
+              }}
+            />
+            <MainRoutes />
+            {/* <GlobalError /> */}
+          </ThemeProvider>
+        </QueryClientProvider>
+      </BrowserRouter>
+    </Box>
+    // </ErrorProvider>
   );
 }
 
