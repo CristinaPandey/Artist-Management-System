@@ -7,6 +7,7 @@ import PrivateLayout from "../layout/PrivateLayout";
 import SpinningLoader from "../components/SpinningLoader/SpinningLoader";
 import PublicLayout from "../layout/PublicLayout";
 import routes from "./routes";
+import Register from "../pages/Signup";
 
 export default function MainRoutes() {
   return (
@@ -28,7 +29,7 @@ export default function MainRoutes() {
 
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Login />} />
-          {/* <Route path="/register" element={<Login />} /> */}
+          <Route path="/register" element={<Register />} />
         </Route>
       </Routes>
     </>
