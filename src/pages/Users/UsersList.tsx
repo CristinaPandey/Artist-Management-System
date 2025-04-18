@@ -27,6 +27,7 @@ import ErrorBar from "../../components/Snackbar/ErrorBar";
 // import { useAuth } from "../../store/authContext";
 import { User, UserRole } from "../../types/user";
 import { ROLES } from "../../constants/roles";
+import UserForm from "./UserForm";
 
 // Form schema with proper conditional validation
 const schema = yup.object().shape({
@@ -304,6 +305,8 @@ const UsersList: React.FC = () => {
       />
 
       {/* User Form Dialog */}
+
+      {/* <UserForm onSubmit={handleCreateUser} onCancel={handleCloseDialog} /> */}
 
       <Dialog
         open={openDialog}
