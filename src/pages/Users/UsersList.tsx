@@ -28,6 +28,8 @@ import ErrorBar from "../../components/Snackbar/ErrorBar";
 import { User, UserRole } from "../../types/user";
 import { ROLES } from "../../constants/roles";
 import UserForm from "./UserForm";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 // Form schema with proper conditional validation
 const schema = yup.object().shape({
@@ -252,6 +254,44 @@ const UsersList: React.FC = () => {
       label: "Created At",
       minWidth: 120,
       format: (value) => new Date(value).toLocaleDateString(),
+    },
+    {
+      id: "actions",
+      label: "Actions",
+      minWidth: 150,
+      align: "center" as const,
+      format: (_: any, row: User) => (
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+          {/* <Button
+            size="small"
+            variant="contained"
+            // color="primary"
+            startIcon={<EditIcon onClick={() => handleEdit(row)} />}
+            onClick={() => handleEdit(row)}
+          ></Button> */}
+          <EditIcon
+            color="primary"
+            onClick={() => handleOpenDialog(row)}
+            sx={{ cursor: "pointer" }}
+          />
+          {/* <Button
+            size="small"
+            variant="contained"
+            color="error"
+            startIcon={
+              <DeleteIcon color="error" onClick={() => handleDelete(row.id)} />
+            }
+            onClick={() => handleDelete(row.id)}
+          >
+            Delete
+          </Button> */}
+          <DeleteIcon
+            color="error"
+            onClick={() => handleDeleteUser(row.id)}
+            sx={{ cursor: "pointer" }}
+          />
+        </Box>
+      ),
     },
   ];
 

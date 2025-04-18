@@ -25,4 +25,17 @@ export const navItems = [
       },
     ],
   },
+  {
+    label: "Songs ",
+    collapseItems: [
+      {
+        label: "Songs Form",
+        path: "/songs-form",
+      },
+      {
+        label: " Songs List",
+        path: "/songs-list",
+      },
+    ],
+  },
 ];

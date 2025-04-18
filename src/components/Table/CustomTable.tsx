@@ -72,14 +72,14 @@ const CustomTable: React.FC<CustomTableProps> = ({
                   {column.label}
                 </TableCell>
               ))}
-              {showActions && (
+              {/* {showActions && (
                 <TableCell
                   align="center"
                   sx={{ minWidth: 120, fontWeight: "bold" }}
                 >
                   Actions
                 </TableCell>
-              )}
+              )} */}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -104,7 +104,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                         </TableCell>
                       );
                     })}
-                    {showActions && (
+                    {/* {showActions && (
                       <TableCell align="center">
                         <Box sx={{ display: "flex", justifyContent: "center" }}>
                           {onEdit && (
@@ -142,7 +142,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
                           )}
                         </Box>
                       </TableCell>
-                    )}
+                    )} */}
                   </TableRow>
                 );
               })
