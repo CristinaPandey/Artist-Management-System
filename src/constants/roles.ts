@@ -1,8 +1,9 @@
-// src/constants/roles.ts
+import { UserRole } from "../types";
+
 export const ROLES = {
-  SUPER_ADMIN: "super_admin",
-  ARTIST_MANAGER: "artist_manager",
-  ARTIST: "artist",
+  SUPER_ADMIN: "super_admin" as UserRole,
+  ARTIST_MANAGER: "artist_manager" as UserRole,
+  ARTIST: "artist" as UserRole,
 };
 
 export const ROLE_PERMISSIONS = {

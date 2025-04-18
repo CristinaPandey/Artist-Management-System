@@ -53,7 +53,7 @@ import { useAuth } from "../store/authContext";
 import { ROLES } from "../constants/roles";
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   const stats = [
     {

@@ -1,34 +1,27 @@
 export const navItems = [
-  // {
-  //   label: "User Management",
-  //   collapseItems: [
-  //     {
-  //       label: "Create Users",
-  //       path: "/create-users",
-  //     },
-  //     {
-  //       label: "View Users",
-  //       path: "/view-users",
-  //     },
-  //   ],
-  // },
-
-  // {
-  //   label: "Reports",
-  //   collapseItems: [
-  //     {
-  //       label: "Payment Reports",
-  //       path: "/reports",
-  //     },
-  //   ],
-  // },
-
   {
-    label: "Issue and Feedback",
+    label: "Users ",
     collapseItems: [
       {
-        label: "Issue and Feedback",
-        path: "/issue-and-feedback",
+        label: "Users Form",
+        path: "/users-form",
+      },
+      {
+        label: " Users List",
+        path: "/users-list",
+      },
+    ],
+  },
+  {
+    label: "Artist ",
+    collapseItems: [
+      {
+        label: "Artist Form",
+        path: "/artist-form",
+      },
+      {
+        label: " Artist List",
+        path: "/artist-list",
       },
     ],
   },
