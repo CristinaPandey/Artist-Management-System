@@ -88,7 +88,7 @@ export default function CustomTable({
 
   return (
     <Box>
-      <TableContainer sx={{ width: { xs: "100%", lg: "130%" } }}>
+      <TableContainer>
         <Table>
           <DefTableHead>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -150,7 +150,7 @@ export default function CustomTable({
           sx={{
             mt: 1,
             display: "flex",
-            width: { xs: "100%", lg: "130%" },
+
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",

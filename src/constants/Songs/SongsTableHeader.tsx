@@ -7,8 +7,9 @@ import ErrorBar from "../../components/Snackbar/ErrorBar";
 import SuccessBar from "../../components/Snackbar/SuccessBar";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditStockModal from "../../pages/Users/EditModal";
+import { Song } from "../../pages/Songs/SongsList";
 
-export const SongsTableListEntryHeader: ColumnDef<User>[] = [
+export const SongsTableListEntryHeader: ColumnDef<Song>[] = [
   {
     header: "SN",
     accessorKey: "sn",
@@ -21,34 +22,34 @@ export const SongsTableListEntryHeader: ColumnDef<User>[] = [
     },
   },
   {
-    header: "Username",
-    accessorKey: "username",
+    header: "Title",
+    accessorKey: "title",
     cell: (data) => {
       return (
         <Typography
           sx={{ fontSize: "14px", fontWeight: 400, textAlign: "left" }}
         >
-          {data?.row?.original?.username}
+          {data?.row?.original?.title}
         </Typography>
       );
     },
   },
   {
-    header: "Email",
-    accessorKey: "email",
+    header: "Genre",
+    accessorKey: "genre",
     cell: (data) => {
       return (
         <Typography
           sx={{ fontSize: "14px", fontWeight: 400, textAlign: "left" }}
         >
-          {data?.row?.original?.email}
+          {data?.row?.original?.genre}
         </Typography>
       );
     },
   },
   {
-    header: "Role ",
-    accessorKey: "role",
+    header: "Release Date",
+    accessorKey: "release_date",
     cell: (data) => {
       return (
         <Typography
@@ -59,7 +60,7 @@ export const SongsTableListEntryHeader: ColumnDef<User>[] = [
             textTransform: "capitalize",
           }}
         >
-          {data?.row?.original?.role}
+          {data?.row?.original?.release_date}
         </Typography>
       );
     },
