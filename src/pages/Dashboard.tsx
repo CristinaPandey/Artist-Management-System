@@ -1,218 +1,29 @@
-// // import { Box } from "@mui/material";
-// // import Divider from "@mui/material/Divider";
-
-// // export default function Dashboard() {
-// //   return (
-// //     <>
-// //       <Box
-// //         sx={{
-// //           pr: { md: 3, lg: 0, xl: 0 },
-// //           width: { md: "110%", lg: "115%", xl: "120%" },
-// //           maxWidth: "1900px",
-// //         }}
-// //       >
-// //         <Divider />
-
-// //         <Box
-// //           sx={{
-// //             display: "grid",
-// //             mt: 3,
-// //             gridTemplateColumns: {
-// //               xs: "1fr",
-// //               md: "repeat(2, 1fr)",
-// //               lg: "repeat(3, 1fr)",
-// //               xl: "repeat(3, 1fr)",
-// //               xxl: "repeat(4, 1fr)",
-// //             },
-// //             gap: 3,
-// //           }}
-// //         ></Box>
-// //       </Box>
-// //     </>
-// //   );
-// // }
-
-// // src/pages/Dashboard.tsx
-// import React from "react";
-// import {
-//   Box,
-//   Grid,
-//   Card,
-//   CardContent,
-//   Typography,
-//   CardHeader,
-//   Divider,
-//   Paper,
-// } from "@mui/material";
-// import {
-//   Person as PersonIcon,
-//   MusicNote as MusicNoteIcon,
-//   PeopleAlt as PeopleAltIcon,
-// } from "@mui/icons-material";
-// import { useAuth } from "../store/authContext";
-// import { ROLES } from "../constants/roles";
-
-// const Dashboard: React.FC = () => {
-//   // const { user } = useAuth();
-
-//   const stats = [
-//     {
-//       title: "Total Users",
-//       value: 12,
-//       icon: <PeopleAltIcon sx={{ fontSize: 40 }} color="primary" />,
-//       roles: [ROLES.SUPER_ADMIN],
-//     },
-//     {
-//       title: "Artists",
-//       value: 24,
-//       icon: <PersonIcon sx={{ fontSize: 40 }} color="secondary" />,
-//       roles: [ROLES.SUPER_ADMIN, ROLES.ARTIST_MANAGER],
-//     },
-//     {
-//       title: "Songs",
-//       value: 87,
-//       icon: <MusicNoteIcon sx={{ fontSize: 40 }} color="success" />,
-//       roles: [ROLES.SUPER_ADMIN, ROLES.ARTIST_MANAGER, ROLES.ARTIST],
-//     },
-//   ];
-
-//   // const hasPermission = (roles: string[]) => {
-//   //   if (!user) return false;
-//   //   return roles.includes(user.role);
-//   // };
-
-//   return (
-//     <Box>
-//       <Typography variant="h4" component="h1" gutterBottom>
-//         Dashboard
-//       </Typography>
-//       <Typography variant="body1" color="text.secondary" paragraph>
-//         Welcome back, 1234
-//         {/* {user?.username}! */}
-//       </Typography>
-
-//       <Grid container spacing={3} sx={{ mt: 2 }}>
-//         {stats.map((stat, index) => (
-//           // hasPermission(stat.roles) && (
-//           // <Grid  item xs={12} sm={6} md={4} key={index}>
-//           <Grid key={index} sx={{ width: { xs: 12, sm: 6, md: 4 } }}>
-//             <Card sx={{ height: "100%" }}>
-//               <CardContent
-//                 sx={{
-//                   display: "flex",
-//                   justifyContent: "space-between",
-//                   alignItems: "center",
-//                 }}
-//               >
-//                 <Box>
-//                   <Typography variant="h5" component="div">
-//                     {stat.value}
-//                   </Typography>
-//                   <Typography variant="body1" color="text.secondary">
-//                     {stat.title}
-//                   </Typography>
-//                 </Box>
-//                 <Box>{stat.icon}</Box>
-//               </CardContent>
-//             </Card>
-//           </Grid>
-//           // )
-//         ))}
-//       </Grid>
-
-//       <Grid container spacing={3} sx={{ mt: 3 }}>
-//         <Grid
-//         // item xs={12} md={6}
-//         >
-//           <Paper sx={{ p: 2 }}>
-//             <Typography variant="h6" gutterBottom>
-//               Recent Activities
-//             </Typography>
-//             <Divider sx={{ mb: 2 }} />
-//             <Box
-//               sx={{
-//                 height: 300,
-//                 display: "flex",
-//                 alignItems: "center",
-//                 justifyContent: "center",
-//               }}
-//             >
-//               <Typography variant="body2" color="text.secondary">
-//                 No recent activities to display
-//               </Typography>
-//             </Box>
-//           </Paper>
-//         </Grid>
-
-//         <Grid
-//         // item xs={12} md={6}
-//         >
-//           <Paper sx={{ p: 2 }}>
-//             <Typography variant="h6" gutterBottom>
-//               System Overview
-//             </Typography>
-//             <Divider sx={{ mb: 2 }} />
-//             <Box sx={{ mb: 2 }}>
-//               <Typography variant="body2" gutterBottom>
-//                 <strong>Role:</strong> user role
-//                 {/* {user?.role} */}
-//               </Typography>
-//               <Typography variant="body2" gutterBottom>
-//                 <strong>Access Level:</strong>{" "}
-//                 {/* {user?.role === ROLES.SUPER_ADMIN
-//                   ? 'Full Access'
-//                   : user?.role === ROLES.ARTIST_MANAGER
-//                     ? 'Artist Management'
-//                     : 'Songs Management'
-//                 } */}
-//               </Typography>
-//             </Box>
-//             <Typography variant="body2" color="text.secondary">
-//               You can manage content based on your access level. Navigate
-//               through the sidebar menu to access different sections.
-//             </Typography>
-//           </Paper>
-//         </Grid>
-//       </Grid>
-//     </Box>
-//   );
-// };
-
-// export default Dashboard;
-
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
   Grid,
   Card,
   CardContent,
   Typography,
-  CardHeader,
-  // Divider,
   Paper,
-  // Avatar,
   IconButton,
   Chip,
   List,
   ListItem,
-  // ListItemIcon,
   ListItemText,
   ListItemAvatar,
   Badge,
   Stack,
-  LinearProgress,
   Button,
   Tooltip,
-  // Menu,
-  // MenuItem,
+  Menu,
+  MenuItem,
+  Avatar,
+  Divider,
+  ListItemIcon,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Avatar from "@mui/material/Avatar";
-import Divider from "@mui/material/Divider";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import LogoutIcon from "@mui/icons-material/Logout";
-// import ListItemIcon from "@mui/material/ListItemIcon";
 import {
   Person as PersonIcon,
   MusicNote as MusicNoteIcon,
@@ -224,9 +35,14 @@ import {
   AccessTime as AccessTimeIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Add as AddIcon,
   Refresh as RefreshIcon,
-  // Logout as LogoutIcon,
+  Logout as LogoutIcon,
+  Launch as LaunchIcon,
+  MoreVert as MoreVertIcon,
+  Dashboard as DashboardIcon,
+  Analytics as AnalyticsIcon,
+  Delete,
+  Edit,
 } from "@mui/icons-material";
 import { useAuth } from "../store/authContext";
 import { ROLES } from "../constants/roles";
@@ -265,13 +81,30 @@ const recentActivities = [
 ];
 
 const topArtists = [
-  { name: "Sarah Jones", songs: 12, followers: 45000 },
-  { name: "Mike Stevens", songs: 8, followers: 32000 },
-  { name: "Lisa Chen", songs: 15, followers: 27500 },
+  {
+    name: "Sarah Jones",
+    songs: 12,
+    followers: 45000,
+    trend: "up",
+    change: "+12%",
+  },
+  {
+    name: "Mike Stevens",
+    songs: 8,
+    followers: 32000,
+    trend: "up",
+    change: "+8%",
+  },
+  {
+    name: "Lisa Chen",
+    songs: 15,
+    followers: 27500,
+    trend: "down",
+    change: "-3%",
+  },
 ];
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   // const { user } = useAuth();
 
   // For demo purposes
@@ -280,65 +113,67 @@ const Dashboard = () => {
     role: ROLES.SUPER_ADMIN,
   };
 
-  // Add state for menu
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const [actionsAnchorEl, setActionsAnchorEl] =
+    React.useState<null | HTMLElement>(null);
+  const [selectedActivityId, setSelectedActivityId] = React.useState<
+    number | null
+  >(null);
 
-  // Menu handlers
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
+  const actionsOpen = Boolean(actionsAnchorEl);
+
+  const handleActionsClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    id: number
+  ) => {
+    setSelectedActivityId(id);
+    setActionsAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    // Your logout logic here
-    navigate("/"); // Redirect to home
-    handleClose(); // Close the menu
+  const handleActionsClose = () => {
+    setActionsAnchorEl(null);
+    setSelectedActivityId(null);
   };
 
   const stats = [
     {
       title: "Total Users",
       value: 12,
-      icon: <PeopleAltIcon sx={{ fontSize: 40 }} color="primary" />,
+      icon: <PeopleAltIcon sx={{ fontSize: 32 }} />,
       change: "+2",
       trend: "up",
       roles: [ROLES.SUPER_ADMIN],
-      bgcolor: "primary.light",
-      color: "primary.dark",
+      bgcolor: "primary.main",
+      color: "white",
     },
     {
       title: "Artists",
       value: 24,
-      icon: <PersonIcon sx={{ fontSize: 40 }} color="secondary" />,
+      icon: <PersonIcon sx={{ fontSize: 32 }} />,
       change: "+5",
       trend: "up",
       roles: [ROLES.SUPER_ADMIN, ROLES.ARTIST_MANAGER],
-      bgcolor: "secondary.light",
-      color: "secondary.dark",
+      bgcolor: "secondary.main",
+      color: "white",
     },
     {
       title: "Songs",
       value: 87,
-      icon: <MusicNoteIcon sx={{ fontSize: 40 }} color="success" />,
+      icon: <MusicNoteIcon sx={{ fontSize: 32 }} />,
       change: "+12",
       trend: "up",
       roles: [ROLES.SUPER_ADMIN, ROLES.ARTIST_MANAGER, ROLES.ARTIST],
-      bgcolor: "success.light",
-      color: "success.dark",
+      bgcolor: "#4caf50",
+      color: "white",
     },
     {
       title: "New This Week",
       value: 8,
-      icon: <BarChartIcon sx={{ fontSize: 40 }} color="warning" />,
+      icon: <BarChartIcon sx={{ fontSize: 32 }} />,
       change: "-2",
       trend: "down",
       roles: [ROLES.SUPER_ADMIN, ROLES.ARTIST_MANAGER],
-      bgcolor: "warning.light",
-      color: "warning.dark",
+      bgcolor: "#ff9800",
+      color: "white",
     },
   ];
 
@@ -347,111 +182,56 @@ const Dashboard = () => {
     return roles.includes(user.role);
   };
 
+  const getTrendColor = (trend: string) => {
+    return trend === "up" ? "success.main" : "error.main";
+  };
+
+  const getTrendIcon = (trend: string) => {
+    return trend === "up" ? (
+      <ArrowUpwardIcon fontSize="small" sx={{ color: "success.main" }} />
+    ) : (
+      <ArrowDownwardIcon fontSize="small" sx={{ color: "error.main" }} />
+    );
+  };
+
   return (
     <Box
-      sx={{ p: 3, maxWidth: "100%", bgcolor: "#f5f5f7", minHeight: "100vh" }}
+      sx={{
+        p: { xs: 2, sm: 3 },
+        bgcolor: "#f7f9fc",
+        width: { sm: "100%", md: "100%", lg: "100%" },
+        // minHeight: "100vh",
+      }}
     >
       {/* Header with greeting */}
-      <Box sx={{ mb: 4, maxWidth: "100%" }}>
+      <Box sx={{ mb: 4 }}>
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            width: "100%",
+            flexWrap: "wrap",
+            gap: 2,
           }}
         >
-          <Typography
-            variant="h4"
-            component="h1"
-            fontWeight="bold"
-            color="text.primary"
-          >
-            Dashboard
-          </Typography>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Tooltip title="Notifications">
-              <IconButton size="medium">
-                <Badge badgeContent={3} color="error">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Refresh Data">
-              <IconButton size="medium">
-                <RefreshIcon />
-              </IconButton>
-            </Tooltip>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <IconButton onClick={handleClick} size="small">
-                <Avatar sx={{ bgcolor: "primary.main" }}>
-                  {user?.username?.[0] || "A"}
-                </Avatar>
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                id="account-menu"
-                open={open}
-                onClose={handleClose}
-                onClick={handleClose}
-                PaperProps={{
-                  elevation: 0,
-                  sx: {
-                    overflow: "visible",
-                    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-                    mt: 1.5,
-                    "& .MuiAvatar-root": {
-                      width: 32,
-                      height: 32,
-                      ml: -0.5,
-                      mr: 1,
-                    },
-                    "&:before": {
-                      content: '""',
-                      display: "block",
-                      position: "absolute",
-                      top: 0,
-                      right: 14,
-                      width: 10,
-                      height: 10,
-                      bgcolor: "background.paper",
-                      transform: "translateY(-50%) rotate(45deg)",
-                      zIndex: 0,
-                    },
-                  },
-                }}
-                transformOrigin={{ horizontal: "right", vertical: "top" }}
-                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-              >
-                {/* <MenuItem onClick={handleClose}>
-                  <Avatar /> Profile
-                </MenuItem>
-                <MenuItem onClick={handleClose}>
-                  <Avatar /> My account
-                </MenuItem> */}
-                {/* <Divider /> */}
-                <MenuItem onClick={handleLogout}>
-                  <ListItemIcon>
-                    <LogoutIcon fontSize="small" />
-                  </ListItemIcon>
-                  Logout
-                </MenuItem>
-              </Menu>
-              <Box sx={{ display: { xs: "none", sm: "block" } }}>
-                <Typography variant="subtitle2" fontWeight="bold">
-                  {user?.username || "User"}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {user?.role || "Role"}
-                </Typography>
-              </Box>
-            </Box>
+          <Box>
+            <Typography
+              component="h1"
+              fontWeight="bold"
+              color="text.primary"
+              sx={{
+                background: "linear-gradient(90deg, #2c3e50 0%, #4b6cb7 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Dashboard
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+              Welcome back! Here's your Artist Management System overview.
+            </Typography>
           </Box>
         </Box>
-        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-          Welcome back! Here's what's happening with your Artist Management
-          System today.
-        </Typography>
       </Box>
 
       {/* Stats Cards */}
@@ -464,15 +244,27 @@ const Dashboard = () => {
                   elevation={2}
                   sx={{
                     height: "100%",
-                    borderRadius: 2,
+                    borderRadius: 3,
+                    overflow: "hidden",
+                    position: "relative",
                     transition: "all 0.3s",
                     "&:hover": {
                       transform: "translateY(-5px)",
-                      boxShadow: 6,
+                      boxShadow: 8,
                     },
                   }}
                 >
-                  <CardContent>
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "5px",
+                      bgcolor: stat.bgcolor,
+                    }}
+                  />
+                  <CardContent sx={{ p: 3 }}>
                     <Box
                       sx={{
                         display: "flex",
@@ -482,7 +274,13 @@ const Dashboard = () => {
                       }}
                     >
                       <Avatar
-                        sx={{ bgcolor: stat.bgcolor, width: 56, height: 56 }}
+                        sx={{
+                          bgcolor: stat.bgcolor,
+                          color: stat.color,
+                          width: 52,
+                          height: 52,
+                          boxShadow: 2,
+                        }}
                       >
                         {stat.icon}
                       </Avatar>
@@ -545,7 +343,15 @@ const Dashboard = () => {
       <Grid container spacing={3}>
         {/* Recent Activities Section */}
         <Grid>
-          <Paper sx={{ p: 3, borderRadius: 2, height: "100%" }}>
+          <Paper
+            elevation={2}
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              height: "100%",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+            }}
+          >
             <Box
               sx={{
                 display: "flex",
@@ -554,13 +360,27 @@ const Dashboard = () => {
                 mb: 2,
               }}
             >
-              <Typography variant="h6" fontWeight="bold">
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <AnalyticsIcon color="primary" />
                 Recent Activities
               </Typography>
               <Button
                 size="small"
+                variant="contained"
                 endIcon={<RefreshIcon />}
-                sx={{ textTransform: "none" }}
+                sx={{
+                  textTransform: "none",
+                  borderRadius: 2,
+                  boxShadow: 1,
+                }}
               >
                 Refresh
               </Button>
@@ -575,19 +395,24 @@ const Dashboard = () => {
                     sx={{
                       py: 1.5,
                       px: 2,
-                      mb: 1,
+                      mb: 1.5,
                       bgcolor: "background.paper",
-                      borderRadius: 1,
-                      "&:hover": { bgcolor: "action.hover" },
+                      borderRadius: 2,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                      transition: "all 0.2s",
+                      "&:hover": {
+                        bgcolor: "action.hover",
+                        transform: "translateX(4px)",
+                      },
                     }}
                     secondaryAction={
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <Tooltip title="View Details">
-                          <IconButton edge="end" size="small">
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
+                      <IconButton
+                        edge="end"
+                        size="small"
+                        onClick={(e) => handleActionsClick(e, activity.id)}
+                      >
+                        <MoreVertIcon fontSize="small" />
+                      </IconButton>
                     }
                   >
                     <ListItemAvatar>
@@ -595,10 +420,12 @@ const Dashboard = () => {
                         sx={{
                           bgcolor:
                             activity.type === "song"
-                              ? "success.light"
+                              ? "#4caf50"
                               : activity.type === "artist"
-                              ? "secondary.light"
-                              : "primary.light",
+                              ? "secondary.main"
+                              : "primary.main",
+                          color: "white",
+                          boxShadow: 1,
                         }}
                       >
                         {activity.type === "song" ? (
@@ -611,7 +438,11 @@ const Dashboard = () => {
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
-                      primary={activity.action}
+                      primary={
+                        <Typography variant="subtitle2" fontWeight="medium">
+                          {activity.action}
+                        </Typography>
+                      }
                       secondary={
                         <React.Fragment>
                           <Typography
@@ -660,23 +491,80 @@ const Dashboard = () => {
               </Box>
             )}
 
-            <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+            <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
               <Button
                 variant="outlined"
-                size="small"
-                sx={{ textTransform: "none" }}
+                size="medium"
+                sx={{
+                  textTransform: "none",
+                  borderRadius: 2,
+                  px: 3,
+                }}
               >
                 View All Activities
               </Button>
             </Box>
+
+            <Menu
+              anchorEl={actionsAnchorEl}
+              open={actionsOpen}
+              onClose={handleActionsClose}
+              PaperProps={{
+                elevation: 3,
+                sx: {
+                  borderRadius: 2,
+                  minWidth: 150,
+                },
+              }}
+            >
+              <MenuItem onClick={handleActionsClose}>
+                <ListItemIcon>
+                  <LaunchIcon fontSize="small" />
+                </ListItemIcon>
+                View Details
+              </MenuItem>
+              <MenuItem onClick={handleActionsClose}>
+                <ListItemIcon>
+                  <Edit fontSize="small" />
+                </ListItemIcon>
+                Edit
+              </MenuItem>
+              <Divider />
+              <MenuItem
+                onClick={handleActionsClose}
+                sx={{ color: "error.main" }}
+              >
+                <ListItemIcon>
+                  <Delete fontSize="small" color="error" />
+                </ListItemIcon>
+                Delete
+              </MenuItem>
+            </Menu>
           </Paper>
         </Grid>
 
         {/* System Overview & Quick Access */}
         <Grid>
           <Stack spacing={3}>
-            <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" fontWeight="bold" gutterBottom>
+            <Paper
+              elevation={2}
+              sx={{
+                p: 3,
+                borderRadius: 3,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+              }}
+            >
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                gutterBottom
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <DashboardIcon color="primary" />
                 System Overview
               </Typography>
               <Divider sx={{ mb: 2 }} />
@@ -686,7 +574,8 @@ const Dashboard = () => {
                   sx={{
                     display: "flex",
                     justifyContent: "space-between",
-                    mb: 1,
+                    mb: 1.5,
+                    alignItems: "center",
                   }}
                 >
                   <Typography variant="body2" fontWeight="medium">
@@ -702,19 +591,34 @@ const Dashboard = () => {
                         ? "secondary"
                         : "default"
                     }
+                    sx={{
+                      fontWeight: "medium",
+                      borderRadius: "16px",
+                      boxShadow: "0 2px 5px rgba(0,0,0,0.08)",
+                    }}
                   />
                 </Box>
                 <Box
                   sx={{
                     display: "flex",
                     justifyContent: "space-between",
-                    mb: 1,
+                    mb: 1.5,
+                    alignItems: "center",
                   }}
                 >
                   <Typography variant="body2" fontWeight="medium">
                     Access Level
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      bgcolor: "rgba(0,0,0,0.04)",
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: 1,
+                    }}
+                  >
                     {user?.role === ROLES.SUPER_ADMIN
                       ? "Full Access"
                       : user?.role === ROLES.ARTIST_MANAGER
@@ -722,34 +626,75 @@ const Dashboard = () => {
                       : "Songs Management"}
                   </Typography>
                 </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
                   <Typography variant="body2" fontWeight="medium">
                     Last Login
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                    }}
+                  >
+                    <AccessTimeIcon fontSize="inherit" />
                     Today, 9:32 AM
                   </Typography>
                 </Box>
               </Box>
 
-              <Typography variant="body2" color="text.secondary" paragraph>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                paragraph
+                sx={{
+                  bgcolor: "primary.light",
+                  p: 1.5,
+                  borderRadius: 2,
+                  borderLeft: "4px solid",
+                  borderColor: "primary.main",
+                }}
+              >
                 You can manage content based on your access level. Navigate
                 through the sidebar menu to access different sections.
               </Typography>
 
               {/* Quick Access Buttons */}
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+              <Box sx={{ mt: 3 }}>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight="bold"
+                  gutterBottom
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                    mb: 1.5,
+                  }}
+                >
                   Quick Access
                 </Typography>
                 <Grid container spacing={2}>
                   {hasPermission([ROLES.SUPER_ADMIN, ROLES.ARTIST_MANAGER]) && (
                     <Grid>
                       <Button
-                        variant="outlined"
+                        variant="contained"
                         fullWidth
                         startIcon={<PersonIcon />}
-                        sx={{ textTransform: "none" }}
+                        sx={{
+                          textTransform: "none",
+                          borderRadius: 2,
+                          bgcolor: "secondary.main",
+                          py: 1,
+                        }}
                       >
                         Manage Artists
                       </Button>
@@ -762,10 +707,15 @@ const Dashboard = () => {
                   ]) && (
                     <Grid>
                       <Button
-                        variant="outlined"
+                        variant="contained"
                         fullWidth
                         startIcon={<MusicNoteIcon />}
-                        sx={{ textTransform: "none" }}
+                        sx={{
+                          textTransform: "none",
+                          borderRadius: 2,
+                          bgcolor: "#4caf50",
+                          py: 1,
+                        }}
                       >
                         Manage Songs
                       </Button>
@@ -774,10 +724,14 @@ const Dashboard = () => {
                   {hasPermission([ROLES.SUPER_ADMIN]) && (
                     <Grid>
                       <Button
-                        variant="outlined"
+                        variant="contained"
                         fullWidth
                         startIcon={<PeopleAltIcon />}
-                        sx={{ textTransform: "none" }}
+                        sx={{
+                          textTransform: "none",
+                          borderRadius: 2,
+                          py: 1,
+                        }}
                       >
                         Manage Users
                       </Button>
@@ -789,45 +743,99 @@ const Dashboard = () => {
 
             {/* Top Artists Section - Only shown to SUPER_ADMIN and ARTIST_MANAGER */}
             {hasPermission([ROLES.SUPER_ADMIN, ROLES.ARTIST_MANAGER]) && (
-              <Paper sx={{ p: 3, borderRadius: 2 }}>
-                <Typography variant="h6" fontWeight="bold" gutterBottom>
+              <Paper
+                elevation={2}
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  gutterBottom
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <PersonIcon color="secondary" />
                   Top Artists
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
 
-                <List dense>
+                <List disablePadding>
                   {topArtists.map((artist, index) => (
                     <ListItem
                       key={index}
                       sx={{
-                        py: 1,
+                        py: 1.5,
                         px: 2,
-                        mb: 1,
+                        mb: 1.5,
                         bgcolor: "background.paper",
-                        borderRadius: 1,
-                        "&:hover": { bgcolor: "action.hover" },
+                        borderRadius: 2,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                        transition: "all 0.2s",
+                        "&:hover": {
+                          bgcolor: "action.hover",
+                          transform: "translateX(4px)",
+                        },
                       }}
                     >
                       <ListItemAvatar>
-                        <Avatar sx={{ bgcolor: "secondary.light" }}>
+                        <Avatar
+                          sx={{
+                            bgcolor: "secondary.main",
+                            boxShadow: 1,
+                          }}
+                        >
                           {artist.name.charAt(0)}
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
-                        primary={artist.name}
+                        primary={
+                          <Typography variant="subtitle2" fontWeight="medium">
+                            {artist.name}
+                          </Typography>
+                        }
                         secondary={`${
                           artist.songs
                         } songs · ${artist.followers.toLocaleString()} followers`}
                       />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          ml: 1,
+                        }}
+                      >
+                        {getTrendIcon(artist.trend)}
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: getTrendColor(artist.trend),
+                            fontWeight: "medium",
+                          }}
+                        >
+                          {artist.change}
+                        </Typography>
+                      </Box>
                     </ListItem>
                   ))}
                 </List>
 
-                <Box sx={{ mt: 1, display: "flex", justifyContent: "center" }}>
+                <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
                   <Button
-                    variant="text"
-                    size="small"
-                    sx={{ textTransform: "none" }}
+                    variant="outlined"
+                    size="medium"
+                    color="secondary"
+                    sx={{
+                      textTransform: "none",
+                      borderRadius: 2,
+                      px: 3,
+                    }}
                   >
                     View All Artists
                   </Button>
