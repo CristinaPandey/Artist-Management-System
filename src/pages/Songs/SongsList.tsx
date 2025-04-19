@@ -314,7 +314,7 @@ const SongsList: React.FC = () => {
           )}
         </>
       )} */}
-      <CustomTable
+      {/* <CustomTable
         columns={columns}
         data={songs}
         totalItems={songs.length}
@@ -323,7 +323,7 @@ const SongsList: React.FC = () => {
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
         loading={loading}
-      />
+      /> */}
 
       {isAddDialogOpen && (
         <AddSongDialog

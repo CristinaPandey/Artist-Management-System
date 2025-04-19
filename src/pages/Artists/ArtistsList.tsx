@@ -18,7 +18,6 @@ import {
   MusicNote as MusicNoteIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import CustomTable, { Column } from "../../components/Table/CustomTable";
 import { useAuth } from "../../store/authContext";
 import { Artist } from "../../types/artist";
 import { ROLES } from "../../constants/roles";
@@ -195,50 +194,50 @@ const ArtistsList: React.FC = () => {
     navigate(`/artists/${artistId}/songs`);
   };
 
-  const columns: Column[] = [
-    { id: "id", label: "ID", minWidth: 50 },
-    { id: "name", label: "Name", minWidth: 150 },
-    { id: "genre", label: "Genre", minWidth: 120 },
+  // const columns: Column[] = [
+  //   { id: "id", label: "ID", minWidth: 50 },
+  //   { id: "name", label: "Name", minWidth: 150 },
+  //   { id: "genre", label: "Genre", minWidth: 120 },
 
-    {
-      id: "actions",
-      label: "Actions",
-      minWidth: 200,
-      format: (_, row) => (
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <>
-            <Tooltip title="Edit">
-              <IconButton
-                size="small"
-                color="primary"
-                onClick={() => handleOpenDialog(row as Artist)}
-              >
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete">
-              <IconButton
-                size="small"
-                color="error"
-                onClick={() => handleDeleteArtist((row as Artist).id)}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
-          </>
-          <Tooltip title="View Songs">
-            <IconButton
-              size="small"
-              color="secondary"
-              onClick={() => navigateToSongs((row as Artist).id)}
-            >
-              <MusicNoteIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
-    },
-  ];
+  //   {
+  //     id: "actions",
+  //     label: "Actions",
+  //     minWidth: 200,
+  //     format: (_, row) => (
+  //       <Box sx={{ display: "flex", gap: 1 }}>
+  //         <>
+  //           <Tooltip title="Edit">
+  //             <IconButton
+  //               size="small"
+  //               color="primary"
+  //               onClick={() => handleOpenDialog(row as Artist)}
+  //             >
+  //               <EditIcon />
+  //             </IconButton>
+  //           </Tooltip>
+  //           <Tooltip title="Delete">
+  //             <IconButton
+  //               size="small"
+  //               color="error"
+  //               onClick={() => handleDeleteArtist((row as Artist).id)}
+  //             >
+  //               <DeleteIcon />
+  //             </IconButton>
+  //           </Tooltip>
+  //         </>
+  //         <Tooltip title="View Songs">
+  //           <IconButton
+  //             size="small"
+  //             color="secondary"
+  //             onClick={() => navigateToSongs((row as Artist).id)}
+  //           >
+  //             <MusicNoteIcon />
+  //           </IconButton>
+  //         </Tooltip>
+  //       </Box>
+  //     ),
+  //   },
+  // ];
 
   // Check access permission
   //   const canView = hasPermission([ROLES.SUPER_ADMIN, ROLES.ARTIST_MANAGER]);
@@ -302,7 +301,7 @@ const ArtistsList: React.FC = () => {
       </Box>
 
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <CustomTable
+        {/* <CustomTable
           columns={columns}
           data={artists}
           totalItems={artists.length}
@@ -311,7 +310,7 @@ const ArtistsList: React.FC = () => {
           onPageChange={handlePageChange}
           onRowsPerPageChange={handleRowsPerPageChange}
           loading={loading}
-        />
+        /> */}
       </Paper>
 
       {openDialog && (
