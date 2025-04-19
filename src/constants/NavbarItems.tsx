@@ -3,10 +3,6 @@ export const navItems = [
     label: "Users ",
     collapseItems: [
       {
-        label: "Users Form",
-        path: "/users-form",
-      },
-      {
         label: " Users List",
         path: "/users",
       },
@@ -16,12 +12,8 @@ export const navItems = [
     label: "Artist ",
     collapseItems: [
       {
-        label: "Artist Form",
-        path: "/artist-form",
-      },
-      {
         label: " Artist List",
-        path: "/artist-list",
+        path: "/artist",
       },
     ],
   },
@@ -29,12 +21,8 @@ export const navItems = [
     label: "Songs ",
     collapseItems: [
       {
-        label: "Songs Form",
-        path: "/songs-form",
-      },
-      {
         label: " Songs List",
-        path: "/songs-list",
+        path: "/songs",
       },
     ],
   },

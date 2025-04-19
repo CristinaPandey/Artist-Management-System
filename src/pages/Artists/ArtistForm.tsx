@@ -1,116 +1,166 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import * as yup from "yup";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import {
   Box,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
-  Button,
   Typography,
-  Grid,
-  FormHelperText,
+  styled,
+  useTheme,
 } from "@mui/material";
-import { useForm, Controller } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { Artist } from "../../types/artist";
+import RoundedButton from "../../components/Button/Button";
+import SuccessBar from "../../components/Snackbar/SuccessBar";
+import ErrorBar from "../../components/Snackbar/ErrorBar";
+import { UserRole } from "../../types";
 
-const currentYear = new Date().getFullYear();
+const schema = yup
+  .object()
+  .shape({
+    name: yup.string().required().label("Artist Name"),
+    genre: yup.string().required().label("Genre"),
+  })
+  .required();
 
-const schema = yup.object().shape({
-  name: yup.string().required("Artist name is required"),
-  genre: yup.string().required("Genre is required"),
-  country: yup.string().required("Country is required"),
-  formationYear: yup
-    .number()
-    .typeError("Formation year must be a number")
-    .integer("Formation year must be an integer")
-    .min(1900, "Formation year must be after 1900")
-    .max(currentYear, `Formation year cannot be after ${currentYear}`)
-    .required("Formation year is required"),
-});
-
-interface ArtistFormProps {
-  onSubmit: (data: Artist) => void;
-  onCancel: () => void;
-  initialData?: Artist;
-  isEdit?: boolean;
+export interface UserFormInput {
+  name: string;
+  genre: string;
 }
 
-const ArtistForm: React.FC<ArtistFormProps> = ({
-  onSubmit,
-  onCancel,
-  initialData,
-  isEdit = false,
-}) => {
+export default function ArtistEntry() {
+  const theme = useTheme();
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<Artist>({
-    resolver: yupResolver(schema) as any,
+  } = useForm<UserFormInput>({
+    resolver: yupResolver(schema),
     defaultValues: {
-      name: initialData?.name || "",
-      genre: initialData?.genre || "",
+      name: "",
+      genre: "",
     },
   });
 
-  const onFormSubmit = (data: Artist) => {
-    // If we're editing, preserve the ID
-    if (isEdit && initialData?.id) {
-      onSubmit({ ...data, id: initialData.id });
-    } else {
-      onSubmit(data);
-    }
-  };
+  const [errorMsgs, setErrorMsgs] = useState<string>("");
+  const [successMsgs, setSuccessMsgs] = useState<string>("");
+  const [showMessage, setShowMessage] = useState<boolean>(false);
+  const [snackbarErrorOpen, setSnackbarErrorOpen] = useState<boolean>(false);
+  const [snackbarSuccessOpen, setSnackbarSuccessOpen] =
+    useState<boolean>(false);
+
+  const handleUserSubmit = async () => {};
+
+  // Helper function to extract error messages
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onFormSubmit)} sx={{ mt: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        {isEdit ? "Edit Artist" : "Create New Artist"}
-      </Typography>
-
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid>
-          <Controller
-            name="name"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Artist Name"
-                fullWidth
-                error={!!errors.name}
-                helperText={errors.name?.message}
-              />
-            )}
-          />
-        </Grid>
-
-        <Grid>
-          <Controller
-            name="genre"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Genre"
-                fullWidth
-                error={!!errors.genre}
-                helperText={errors.genre?.message}
-              />
-            )}
-          />
-        </Grid>
-      </Grid>
-
-      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-        <Button variant="outlined" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit" variant="contained" color="primary">
-          {isEdit ? "Update" : "Create"}
-        </Button>
+    <Box
+      component="form"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 0,
+        width: { xs: "100%", sm: "80%", md: "100%", lg: "70%" },
+      }}
+    >
+      <Box sx={{ width: "50px" }}>
+        <Typography
+          sx={{
+            my: 1,
+            fontSize: "16px",
+            fontWeight: 600,
+            lineHeight: "19px",
+            color: "#212121",
+            textAlign: "center",
+            width: "max-content",
+            borderBottom: `1px solid ${theme.palette.secondary.main}`,
+          }}
+        >
+          Add New Artist
+        </Typography>
       </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          width: "100%",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 2,
+          }}
+        >
+          <Box>
+            <InputLabel sx={{ fontWeight: 600 }}>Artist Name</InputLabel>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  sx={{ width: "300px" }}
+                  {...field}
+                  fullWidth
+                  size="small"
+                  placeholder="Please Enter Artist Name"
+                  error={Boolean(errors.name)}
+                  helperText={errors.name && errors.name.message}
+                />
+              )}
+            />
+          </Box>
+          <Box>
+            <InputLabel sx={{ fontWeight: 600 }}>Genre</InputLabel>
+            <Controller
+              name="genre"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  sx={{ width: "300px" }}
+                  {...field}
+                  fullWidth
+                  size="small"
+                  placeholder="Please Enter Genre Address"
+                  error={Boolean(errors.genre)}
+                  helperText={errors.genre && errors.genre.message}
+                />
+              )}
+            />
+          </Box>
+        </Box>
+      </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          marginTop: "10px",
+        }}
+      >
+        <RoundedButton
+          title1="Add Artist Entry"
+          //   onClick1={handleSubmit(handleleArtistDetails)}
+          //   loading={isPending}
+        />
+      </Box>
+      <SuccessBar
+        snackbarOpen={snackbarSuccessOpen}
+        setSnackbarOpen={setSnackbarSuccessOpen}
+        message={successMsgs}
+      />
+      <ErrorBar
+        snackbarOpen={snackbarErrorOpen}
+        setSnackbarOpen={setSnackbarErrorOpen}
+        message={errorMsgs}
+      />
     </Box>
   );
-};
-
-export default ArtistForm;
+}
