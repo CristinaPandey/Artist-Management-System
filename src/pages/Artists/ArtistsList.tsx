@@ -32,6 +32,8 @@ import ConfirmDialog from "../../components/Dialogs/ConfirmDialog";
 import CustomTable from "../../components/Table/CustomTable";
 import { ArtistTableListEntryHeader } from "../../constants/Artist/ArtistTableListEntryHeader";
 import { PaginationState } from "@tanstack/react-table";
+import ArtistEntry from "./ArtistForm";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 const ArtistsList: React.FC = () => {
   const theme = useTheme();
@@ -60,6 +62,7 @@ const ArtistsList: React.FC = () => {
   const [next, setNext] = useState<boolean>(false);
   const [prev, setPrev] = useState<boolean>(false);
   const [pageSize, setPageSize] = useState<number>(10);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchArtists();
@@ -122,6 +125,14 @@ const ArtistsList: React.FC = () => {
     setOpenDialog(true);
   };
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   const totalPageCount = Math.ceil(artists.length / pageSize);
 
   // Check access permission
@@ -140,7 +151,7 @@ const ArtistsList: React.FC = () => {
   //   }
 
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
       <SuccessBar
         snackbarOpen={openSuccess}
         setSnackbarOpen={setOpenSuccess}
@@ -175,23 +186,49 @@ const ArtistsList: React.FC = () => {
           Artists Management
         </Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
+          {/* {canCreate && ( */}
+          <Box sx={{ display: "flex", flexDirection: "flex-end" }}>
+            <Button
+              variant="contained"
+              sx={{
+                borderRadius: "100px",
+                padding: "6px 24px",
+                fontSize: "14px",
+                fontWeight: 600,
+                lineHeight: "20px",
+                textTransform: "none",
+                backgroundColor: theme.palette.secondary.main,
+                "&:hover": {
+                  bgcolor: theme.palette.primary.main,
+                },
+              }}
+              startIcon={<PersonAddIcon />}
+              onClick={handleOpenModal}
+            >
+              Add New Artist
+            </Button>
+
+            <ArtistEntry open={isModalOpen} onClose={handleCloseModal} />
+          </Box>
+          {/* )} */}
           {/* {canImportExport && ( */}
           <Button
             variant="outlined"
+            sx={{
+              borderRadius: "100px",
+              padding: "6px 24px",
+              borderColor: "#616161",
+              fontSize: "14px",
+              fontWeight: 600,
+              lineHeight: "20px",
+              color: theme.palette.secondary.main,
+              textTransform: "none",
+            }}
             startIcon={<UploadIcon />}
             onClick={() => setOpenImportExport(true)}
           >
             Import/Export
           </Button>
-          {/* )} */}
-          {/* {canCreate && ( */}
-          {/* <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog()}
-          >
-            Add Artist
-          </Button> */}
           {/* )} */}
         </Box>
       </Box>

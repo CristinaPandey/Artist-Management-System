@@ -85,7 +85,6 @@ export default function UserEntry({ open, onClose }: UserEntryProps) {
 
   const handleUserSubmit = async (data: UserFormInput) => {
     try {
-      // Your API submission logic here
       console.log("Form data:", data);
 
       // On success
