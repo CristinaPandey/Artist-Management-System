@@ -8,7 +8,7 @@ export const navItems = [
       },
       {
         label: " Users List",
-        path: "/users-list",
+        path: "/users",
       },
     ],
   },
