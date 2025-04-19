@@ -117,13 +117,25 @@ const Login: React.FC = () => {
               borderRadius: "10px",
             }}
           >
-            <Box sx={{ alignSelf: "center" }}>{/* <img src={Logo} /> */}</Box>
-            <Box>
-              <Typography
-                sx={{ color: theme.palette.secondary.main, fontWeight: 600 }}
-              >
-                Login to your account
+            <Box
+              sx={{
+                width: "400px",
+                ml: -8,
+                mt: -5,
+                borderRadius: "6px",
+                overflow: "hidden",
+                p: 2,
+                bgcolor: theme.palette.primary.main,
+                color: "#fff",
+                textAlign: "center",
+              }}
+            >
+              <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                Welcome back
               </Typography>
+              <Typography variant="body2">Login to your account</Typography>
+
+              {/* <img src={Logo} /> */}
             </Box>
 
             <Controller
