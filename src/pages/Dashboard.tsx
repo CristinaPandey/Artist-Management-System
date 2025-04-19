@@ -46,7 +46,7 @@ import {
 } from "@mui/icons-material";
 import { useAuth } from "../store/authContext";
 import { ROLES } from "../constants/roles";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Mock data for demonstration
 const recentActivities = [
@@ -105,6 +105,8 @@ const topArtists = [
 ];
 
 const Dashboard = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   // const { user } = useAuth();
 
   // For demo purposes
@@ -203,7 +205,6 @@ const Dashboard = () => {
         // minHeight: "100vh",
       }}
     >
-      {/* Header with greeting */}
       <Box sx={{ mb: 4 }}>
         <Box
           sx={{
@@ -234,7 +235,6 @@ const Dashboard = () => {
         </Box>
       </Box>
 
-      {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {stats.map(
           (stat, index) =>
@@ -695,6 +695,7 @@ const Dashboard = () => {
                           bgcolor: "secondary.main",
                           py: 1,
                         }}
+                        onClick={() => navigate("/artist")}
                       >
                         Manage Artists
                       </Button>
@@ -716,6 +717,7 @@ const Dashboard = () => {
                           bgcolor: "#4caf50",
                           py: 1,
                         }}
+                        onClick={() => navigate("/songs")}
                       >
                         Manage Songs
                       </Button>
@@ -732,6 +734,7 @@ const Dashboard = () => {
                           borderRadius: 2,
                           py: 1,
                         }}
+                        onClick={() => navigate("/users")}
                       >
                         Manage Users
                       </Button>
