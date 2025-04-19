@@ -8,6 +8,7 @@ import {
   Chip,
   Tooltip,
   CircularProgress,
+  useTheme,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -18,7 +19,6 @@ import {
   MusicNote as MusicNoteIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import CustomTable, { Column } from "../../components/Table/CustomTable";
 import { useAuth } from "../../store/authContext";
 import { Artist } from "../../types/artist";
 import { ROLES } from "../../constants/roles";
@@ -29,8 +29,14 @@ import ErrorBar from "../../components/Snackbar/ErrorBar";
 import ArtistImportExport from "./ArtistImportExport";
 import AddArtistDialog from "../../components/Dialogs/AddArtistDialog";
 import ConfirmDialog from "../../components/Dialogs/ConfirmDialog";
+import CustomTable from "../../components/Table/CustomTable";
+import { ArtistTableListEntryHeader } from "../../constants/Artist/ArtistTableListEntryHeader";
+import { PaginationState } from "@tanstack/react-table";
+import ArtistEntry from "./ArtistForm";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 const ArtistsList: React.FC = () => {
+  const theme = useTheme();
   //   const { hasPermission } = useAuth();
   const navigate = useNavigate();
 
@@ -43,15 +49,20 @@ const ArtistsList: React.FC = () => {
   const [currentArtist, setCurrentArtist] = useState<Artist | null>(null);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
-  const [openConfirmDialog, setOpenConfirmDialog] = useState<boolean>(false);
-  const [artistToDelete, setArtistToDelete] = useState<number | null>(null);
-
   const [openImportExport, setOpenImportExport] = useState<boolean>(false);
 
   const [openSuccess, setOpenSuccess] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [openError, setOpenError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [next, setNext] = useState<boolean>(false);
+  const [prev, setPrev] = useState<boolean>(false);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchArtists();
@@ -103,17 +114,6 @@ const ArtistsList: React.FC = () => {
     }
   };
 
-  const handlePageChange = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleRowsPerPageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   const handleOpenDialog = (artist?: Artist) => {
     if (artist) {
       setIsEdit(true);
@@ -125,120 +125,15 @@ const ArtistsList: React.FC = () => {
     setOpenDialog(true);
   };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setCurrentArtist(null);
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
   };
 
-  const handleDeleteArtist = (id: number) => {
-    setArtistToDelete(id);
-    setOpenConfirmDialog(true);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
-  const confirmDelete = async () => {
-    if (artistToDelete) {
-      try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // Update UI
-        const updatedArtists = artists.filter(
-          (artist) => artist.id !== artistToDelete
-        );
-        setArtists(updatedArtists);
-        setSuccessMessage("Artist deleted successfully");
-        setOpenSuccess(true);
-      } catch (error) {
-        setErrorMessage("Failed to delete artist");
-        setOpenError(true);
-      } finally {
-        setOpenConfirmDialog(false);
-        setArtistToDelete(null);
-      }
-    }
-  };
-
-  const handleSaveArtist = async (artist: Artist) => {
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      if (isEdit && currentArtist) {
-        // Update existing artist
-        const updatedArtists = artists.map((a) =>
-          a.id === currentArtist.id ? { ...a, ...artist } : a
-        );
-        setArtists(updatedArtists);
-        setSuccessMessage("Artist updated successfully");
-      } else {
-        // Create new artist
-        const newArtist: Artist = {
-          ...artist,
-          id: Math.max(...artists.map((a) => a.id), 0) + 1,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-
-        setArtists([...artists, newArtist]);
-        setSuccessMessage("Artist created successfully");
-      }
-
-      setOpenSuccess(true);
-      handleCloseDialog();
-    } catch (error) {
-      setErrorMessage("Failed to save artist");
-      setOpenError(true);
-    }
-  };
-
-  const navigateToSongs = (artistId: number) => {
-    navigate(`/artists/${artistId}/songs`);
-  };
-
-  const columns: Column[] = [
-    { id: "id", label: "ID", minWidth: 50 },
-    { id: "name", label: "Name", minWidth: 150 },
-    { id: "genre", label: "Genre", minWidth: 120 },
-
-    {
-      id: "actions",
-      label: "Actions",
-      minWidth: 200,
-      format: (_, row) => (
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <>
-            <Tooltip title="Edit">
-              <IconButton
-                size="small"
-                color="primary"
-                onClick={() => handleOpenDialog(row as Artist)}
-              >
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete">
-              <IconButton
-                size="small"
-                color="error"
-                onClick={() => handleDeleteArtist((row as Artist).id)}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
-          </>
-          <Tooltip title="View Songs">
-            <IconButton
-              size="small"
-              color="secondary"
-              onClick={() => navigateToSongs((row as Artist).id)}
-            >
-              <MusicNoteIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
-    },
-  ];
+  const totalPageCount = Math.ceil(artists.length / pageSize);
 
   // Check access permission
   //   const canView = hasPermission([ROLES.SUPER_ADMIN, ROLES.ARTIST_MANAGER]);
@@ -256,7 +151,7 @@ const ArtistsList: React.FC = () => {
   //   }
 
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
       <SuccessBar
         snackbarOpen={openSuccess}
         setSnackbarOpen={setOpenSuccess}
@@ -276,45 +171,95 @@ const ArtistsList: React.FC = () => {
           alignItems: "center",
         }}
       >
-        <Typography variant="h4" component="h1">
+        <Typography
+          sx={{
+            my: 1,
+            fontSize: "16px",
+            fontWeight: 600,
+            lineHeight: "19px",
+            color: "#212121",
+            textAlign: "center",
+            width: "max-content",
+            borderBottom: `1px solid ${theme.palette.secondary.main}`,
+          }}
+        >
           Artists Management
         </Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
+          {/* {canCreate && ( */}
+          <Box sx={{ display: "flex", flexDirection: "flex-end" }}>
+            <Button
+              variant="contained"
+              sx={{
+                borderRadius: "100px",
+                padding: "6px 24px",
+                fontSize: "14px",
+                fontWeight: 600,
+                lineHeight: "20px",
+                textTransform: "none",
+                backgroundColor: theme.palette.secondary.main,
+                "&:hover": {
+                  bgcolor: theme.palette.primary.main,
+                },
+              }}
+              startIcon={<PersonAddIcon />}
+              onClick={handleOpenModal}
+            >
+              Add New Artist
+            </Button>
+
+            <ArtistEntry open={isModalOpen} onClose={handleCloseModal} />
+          </Box>
+          {/* )} */}
           {/* {canImportExport && ( */}
           <Button
             variant="outlined"
+            sx={{
+              borderRadius: "100px",
+              padding: "6px 24px",
+              borderColor: "#616161",
+              fontSize: "14px",
+              fontWeight: 600,
+              lineHeight: "20px",
+              color: theme.palette.secondary.main,
+              textTransform: "none",
+            }}
             startIcon={<UploadIcon />}
             onClick={() => setOpenImportExport(true)}
           >
             Import/Export
           </Button>
           {/* )} */}
-          {/* {canCreate && ( */}
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog()}
-          >
-            Add Artist
-          </Button>
-          {/* )} */}
         </Box>
       </Box>
 
-      <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <CustomTable
-          columns={columns}
-          data={artists}
-          totalItems={artists.length}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
-          loading={loading}
-        />
-      </Paper>
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", m: 5 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          {artists.length === 0 ? (
+            <Paper sx={{ p: 4, textAlign: "center" }}>
+              <Typography>No songs found for this artist.</Typography>
+            </Paper>
+          ) : (
+            <CustomTable
+              columns={ArtistTableListEntryHeader}
+              data={artists}
+              pagination={pagination}
+              setPagination={setPagination}
+              next={next}
+              prev={prev}
+              pageCount={totalPageCount}
+              setPageSize={setPageSize}
+              loading={loading}
+            />
+          )}
+        </>
+      )}
 
-      {openDialog && (
+      {/* {openDialog && (
         <AddArtistDialog
           open={openDialog}
           onClose={handleCloseDialog}
@@ -330,7 +275,7 @@ const ArtistsList: React.FC = () => {
         onConfirm={confirmDelete}
         title="Confirm Delete"
         message="Are you sure you want to delete this artist? This action cannot be undone."
-      />
+      /> */}
 
       {openImportExport && (
         <ArtistImportExport

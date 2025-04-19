@@ -115,13 +115,13 @@ const AddSongDialog: React.FC<AddSongDialogProps> = ({
           </Alert>
         )}
         <Box sx={{ mt: 1 }}>
-          <SongForm
-            artistId={artistId}
+          {/* <SongForm
+            // artistId={artistId}
             initialData={song || undefined}
             onSubmit={handleSubmit}
             onCancel={onClose}
             isSubmitting={isSubmitting}
-          />
+          /> */}
         </Box>
       </DialogContent>
     </Dialog>

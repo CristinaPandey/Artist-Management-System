@@ -4,26 +4,24 @@ import {
   Box,
   Typography,
   Button,
-  CircularProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Alert,
-  Pagination,
+  useTheme,
+  CircularProgress,
+  Paper,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddSongDialog from "../../components/Dialogs/AddSongDialog";
 import CustomTable from "../../components/Table/CustomTable";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import { PaginationState } from "@tanstack/react-table";
+import SongEntry from "./SongForm";
+import { SongsTableListEntryHeader } from "../../constants/Songs/SongsTableHeader";
 // import AddSongDialog from "../Dialogs/AddSongDialog";
 // import { useAuth } from "../../contexts/AuthContext";
 
-interface Song {
+export interface Song {
   id: number;
   title: string;
   genre: string;
@@ -32,6 +30,7 @@ interface Song {
 }
 
 const SongsList: React.FC = () => {
+  const theme = useTheme();
   const { artistId } = useParams<{ artistId: string }>();
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -42,7 +41,14 @@ const SongsList: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   //   const { user } = useAuth();
-  const songsPerPage = 10;
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [next, setNext] = useState<boolean>(false);
+  const [prev, setPrev] = useState<boolean>(false);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchSongs();
@@ -162,61 +168,15 @@ const SongsList: React.FC = () => {
   //     }
   //   }, [artistId, currentPage, rowsPerPage]);
 
-  const handleRowsPerPageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setCurrentPage(0);
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
   };
 
-  const columns = [
-    { id: "title", label: "Title", minWidth: 150 },
-    { id: "genre", label: "Genre", minWidth: 100 },
-    {
-      id: "release_date",
-      label: "Release Date",
-      minWidth: 120,
-      format: (value: string) => new Date(value).toLocaleDateString(),
-    },
-    {
-      id: "actions",
-      label: "Actions",
-      minWidth: 150,
-      align: "center" as const,
-      format: (_: any, row: Song) => (
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
-          {/* <Button
-            size="small"
-            variant="contained"
-            // color="primary"
-            startIcon={<EditIcon onClick={() => handleEdit(row)} />}
-            onClick={() => handleEdit(row)}
-          ></Button> */}
-          <EditIcon
-            color="primary"
-            onClick={() => handleEdit(row)}
-            sx={{ cursor: "pointer" }}
-          />
-          {/* <Button
-            size="small"
-            variant="contained"
-            color="error"
-            startIcon={
-              <DeleteIcon color="error" onClick={() => handleDelete(row.id)} />
-            }
-            onClick={() => handleDelete(row.id)}
-          >
-            Delete
-          </Button> */}
-          <DeleteIcon
-            color="error"
-            onClick={() => handleDelete(row.id)}
-            sx={{ cursor: "pointer" }}
-          />
-        </Box>
-      ),
-    },
-  ];
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const totalPageCount = Math.ceil(songs.length / pageSize);
 
   const handleDelete = async (songId: number) => {
     if (window.confirm("Are you sure you want to delete this song?")) {
@@ -252,10 +212,6 @@ const SongsList: React.FC = () => {
     handleDialogClose();
   };
 
-  const handlePageChange = (event: unknown, page: number) => {
-    setCurrentPage(page);
-  };
-
   //   const canModifySongs = user?.role === "artist";
 
   return (
@@ -270,18 +226,44 @@ const SongsList: React.FC = () => {
           gap: { xs: 2, sm: 0 },
         }}
       >
-        <Typography variant="h4" component="h1" sx={{ fontWeight: "bold" }}>
+        <Typography
+          sx={{
+            my: 1,
+            fontSize: "16px",
+            fontWeight: 600,
+            lineHeight: "19px",
+            color: "#212121",
+            textAlign: "center",
+            width: "max-content",
+            borderBottom: `1px solid ${theme.palette.secondary.main}`,
+          }}
+        >
           Songs List
         </Typography>
         {/* {canModifySongs && ( */}
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setIsAddDialogOpen(true)}
-          sx={{ minWidth: { xs: "100%", sm: "auto" } }}
-        >
-          Add New Song
-        </Button>
+        <Box sx={{ display: "flex", flexDirection: "flex-end" }}>
+          <Button
+            variant="contained"
+            sx={{
+              borderRadius: "100px",
+              padding: "6px 24px",
+              fontSize: "14px",
+              fontWeight: 600,
+              lineHeight: "20px",
+              textTransform: "none",
+              backgroundColor: theme.palette.secondary.main,
+              "&:hover": {
+                bgcolor: theme.palette.primary.main,
+              },
+            }}
+            startIcon={<PersonAddIcon />}
+            onClick={handleOpenModal}
+          >
+            Add New Song
+          </Button>
+
+          <SongEntry open={isModalOpen} onClose={handleCloseModal} />
+        </Box>
         {/* )} */}
       </Box>
 
@@ -291,39 +273,31 @@ const SongsList: React.FC = () => {
         </Alert>
       )}
 
-      {/* {loading ? (
+      {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", m: 5 }}>
           <CircularProgress />
         </Box>
       ) : (
         <>
-          {SongsData.length === 0 ? (
+          {songs.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: "center" }}>
               <Typography>No songs found for this artist.</Typography>
             </Paper>
           ) : (
             <CustomTable
-              columns={columns}
-              data={SongsData}
-              totalItems={SongsData.length}
-              page={currentPage}
-              rowsPerPage={songsPerPage}
-              onPageChange={handlePageChange}
+              columns={SongsTableListEntryHeader}
+              data={songs}
+              pagination={pagination}
+              setPagination={setPagination}
+              next={next}
+              prev={prev}
+              pageCount={totalPageCount}
+              setPageSize={setPageSize}
               loading={loading}
             />
           )}
         </>
-      )} */}
-      <CustomTable
-        columns={columns}
-        data={songs}
-        totalItems={songs.length}
-        page={currentPage}
-        rowsPerPage={songsPerPage}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
-        loading={loading}
-      />
+      )}
 
       {isAddDialogOpen && (
         <AddSongDialog

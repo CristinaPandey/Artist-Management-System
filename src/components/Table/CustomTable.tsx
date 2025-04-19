@@ -1,177 +1,221 @@
-// src/components/Table/CustomTable.tsx
-import React from "react";
+import * as React from "react";
+import {
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+  getPaginationRowModel,
+} from "@tanstack/react-table";
 import {
   Box,
-  Table,
-  TableBody,
-  TableCell,
   TableContainer,
+  Table,
   TableHead,
+  TableBody,
   TableRow,
-  Paper,
-  TablePagination,
-  CircularProgress,
+  TableCell,
   Typography,
   IconButton,
-  Tooltip,
+  useTheme,
 } from "@mui/material";
-import { Edit, Delete, PlayArrow } from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
+import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 
-export interface Column {
-  id: string;
-  label: string;
-  minWidth?: number;
-  align?: "right" | "left" | "center";
-  format?: (value: any, row?: any) => React.ReactNode;
-}
+export const DefTableHead = styled(TableHead)(({ theme }) => ({
+  "& .MuiTableCell-root ": {
+    borderBottom: `1px solid ${theme.palette.secondary[700]}`,
+    fontSize: "14px",
+    fontWeight: "600px",
+  },
+}));
 
-interface CustomTableProps {
-  columns: Column[];
-  data: any[];
-  totalItems: number;
-  page: number;
-  rowsPerPage: number;
-  onPageChange: (event: unknown, newPage: number) => void;
-  onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+export const DefTableBody = styled(TableBody)(({ theme }) => ({
+  "& .MuiTableRow-root:nth-of-type(even)": {
+    backgroundColor: theme.palette.secondary[1100],
+  },
+}));
+
+export const DefTableCell = styled(TableCell)(() => ({
+  padding: "0.3rem",
+}));
+
+type CustomTableData = {
+  data: any;
+  columns: any;
+  pagination?: any;
+  setPagination?: any;
+  next?: boolean;
+  prev?: boolean;
+  pageCount?: number;
   loading?: boolean;
-  onEdit?: (id: number) => void;
-  onDelete?: (id: number) => void;
-  onViewSongs?: (id: number) => void;
-  showActions?: boolean;
-  showViewSongs?: boolean;
-}
-
-const CustomTable: React.FC<CustomTableProps> = ({
-  columns,
-  data,
-  totalItems,
-  page,
-  rowsPerPage,
-  onPageChange,
-  onRowsPerPageChange,
-  loading = false,
-  onEdit,
-  onDelete,
-  onViewSongs,
-  showActions = true,
-  showViewSongs = false,
-}) => {
-  return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <TableContainer sx={{ maxHeight: 440 }}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
-                  sx={{ fontWeight: "bold" }}
-                >
-                  {column.label}
-                </TableCell>
-              ))}
-              {/* {showActions && (
-                <TableCell
-                  align="center"
-                  sx={{ minWidth: 120, fontWeight: "bold" }}
-                >
-                  Actions
-                </TableCell>
-              )} */}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length + (showActions ? 1 : 0)}
-                  align="center"
-                >
-                  <CircularProgress size={24} />
-                </TableCell>
-              </TableRow>
-            ) : data.length > 0 ? (
-              data.map((row) => {
-                return (
-                  <TableRow hover tabIndex={-1} key={row.id}>
-                    {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell key={column.id} align={column.align}>
-                          {column.format ? column.format(value) : value}
-                        </TableCell>
-                      );
-                    })}
-                    {/* {showActions && (
-                      <TableCell align="center">
-                        <Box sx={{ display: "flex", justifyContent: "center" }}>
-                          {onEdit && (
-                            <Tooltip title="Edit">
-                              <IconButton
-                                size="small"
-                                onClick={() => onEdit(row.id)}
-                                color="primary"
-                              >
-                                <Edit fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                          {onDelete && (
-                            <Tooltip title="Delete">
-                              <IconButton
-                                size="small"
-                                onClick={() => onDelete(row.id)}
-                                color="error"
-                              >
-                                <Delete fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                          {showViewSongs && onViewSongs && (
-                            <Tooltip title="View Songs">
-                              <IconButton
-                                size="small"
-                                onClick={() => onViewSongs(row.id)}
-                                color="secondary"
-                              >
-                                <PlayArrow fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                        </Box>
-                      </TableCell>
-                    )} */}
-                  </TableRow>
-                );
-              })
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length + (showActions ? 1 : 0)}
-                  align="center"
-                >
-                  <Typography variant="body2" color="text.secondary">
-                    No data available
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={totalItems}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={onPageChange}
-        onRowsPerPageChange={onRowsPerPageChange}
-      />
-    </Paper>
-  );
+  setPageSize?: any;
 };
 
-export default CustomTable;
+export default function CustomTable({
+  data,
+  columns,
+  pagination,
+  setPagination,
+  next,
+  prev,
+  pageCount,
+  // loading,
+  setPageSize,
+}: CustomTableData) {
+  const theme = useTheme();
+
+  const table = useReactTable({
+    data: data,
+    columns: columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
+    manualPagination: true,
+    state: {
+      pagination,
+    },
+  });
+
+  const handleLastPage = () => {
+    if (typeof pageCount === "number") {
+      table.setPageIndex(pageCount - 1);
+    }
+  };
+
+  return (
+    <Box>
+      <TableContainer>
+        <Table>
+          <DefTableHead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header, index) => (
+                  <DefTableCell
+                    key={header.id}
+                    sx={{
+                      fontSize: "1rem",
+                      textAlign:
+                        index === headerGroup.headers.length - 1
+                          ? "center"
+                          : "left",
+                    }}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </DefTableCell>
+                ))}
+              </TableRow>
+            ))}
+          </DefTableHead>
+          <DefTableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <DefTableCell key={cell.id} sx={{}}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </DefTableCell>
+                ))}
+              </TableRow>
+            ))}
+          </DefTableBody>
+        </Table>
+      </TableContainer>
+
+      {(data && data.length >= 10) || next || prev ? (
+        <Box
+          sx={{
+            mt: 1,
+            display: "flex",
+
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            bgcolor: theme.palette.grey[200],
+          }}
+        >
+          <Box sx={{ display: "flex", flexDirection: "row" }}>
+            <IconButton
+              className="border rounded p-1"
+              onClick={() => table.firstPage()}
+              disabled={prev}
+            >
+              <KeyboardDoubleArrowLeftIcon />
+            </IconButton>
+            <IconButton
+              className="border rounded p-1"
+              onClick={() => table.previousPage()}
+              disabled={prev}
+            >
+              <KeyboardArrowLeftIcon />
+            </IconButton>
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                gap: 1,
+                alignItems: "center",
+                mt: 0,
+              }}
+            >
+              {setPageSize && (
+                <select
+                  style={{
+                    padding: "5px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
+                    fontFamily: "inherit",
+                    fontSize: "inherit",
+                  }}
+                  value={table.getState().pagination.pageSize}
+                  onChange={(event) => {
+                    if (setPageSize) {
+                      setPageSize(Number(event.target.value));
+                    }
+                    table.setPageSize(Number(event.target.value));
+                  }}
+                >
+                  {[10, 25, 50, 100].map((pageSize) => (
+                    <option key={pageSize} value={pageSize}>
+                      Show {pageSize}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              <Typography>Page </Typography>
+
+              <Typography sx={{ fontWeight: 600 }}>
+                {" "}
+                {table.getState().pagination.pageIndex + 1} of {pageCount}
+              </Typography>
+            </Box>
+
+            <IconButton
+              className="border rounded p-1"
+              onClick={() => table.nextPage()}
+              disabled={next}
+            >
+              <KeyboardArrowRightIcon />
+            </IconButton>
+            <IconButton
+              className="border rounded p-1"
+              onClick={handleLastPage}
+              disabled={next}
+            >
+              <KeyboardDoubleArrowRightIcon />
+            </IconButton>
+          </Box>
+        </Box>
+      ) : null}
+    </Box>
+  );
+}

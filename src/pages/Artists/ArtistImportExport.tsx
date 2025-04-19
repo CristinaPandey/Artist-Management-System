@@ -14,6 +14,7 @@ import {
   IconButton,
   InputLabel,
   Paper,
+  useTheme,
 } from "@mui/material";
 import {
   Close as CloseIcon,
@@ -56,6 +57,7 @@ const ArtistImportExport: React.FC<ArtistImportExportProps> = ({
   onClose,
   onImportSuccess,
 }) => {
+  const theme = useTheme();
   const [tabValue, setTabValue] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -190,7 +192,15 @@ const ArtistImportExport: React.FC<ArtistImportExportProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
+      <DialogTitle
+        sx={{
+          fontSize: "16px",
+          fontWeight: 600,
+          lineHeight: "19px",
+          color: "#212121",
+          width: "max-content",
+        }}
+      >
         Artist Import/Export
         <IconButton
           aria-label="close"
@@ -244,6 +254,16 @@ const ArtistImportExport: React.FC<ArtistImportExportProps> = ({
               <Button
                 component="span"
                 variant="outlined"
+                sx={{
+                  borderRadius: "100px",
+                  padding: "6px 24px",
+                  borderColor: "#616161",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  lineHeight: "20px",
+                  color: theme.palette.secondary.main,
+                  textTransform: "none",
+                }}
                 startIcon={<FileUploadIcon />}
                 disabled={uploading}
               >
@@ -290,7 +310,18 @@ const ArtistImportExport: React.FC<ArtistImportExportProps> = ({
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <Button
               variant="contained"
-              color="primary"
+              sx={{
+                borderRadius: "100px",
+                padding: "6px 24px",
+                fontSize: "14px",
+                fontWeight: 600,
+                lineHeight: "20px",
+                textTransform: "none",
+                backgroundColor: theme.palette.secondary.main,
+                "&:hover": {
+                  bgcolor: theme.palette.primary.main,
+                },
+              }}
               onClick={handleImport}
               disabled={!selectedFile || uploading}
               startIcon={<FileUploadIcon />}
@@ -331,7 +362,18 @@ const ArtistImportExport: React.FC<ArtistImportExportProps> = ({
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <Button
               variant="contained"
-              color="primary"
+              sx={{
+                borderRadius: "100px",
+                padding: "6px 24px",
+                fontSize: "14px",
+                fontWeight: 600,
+                lineHeight: "20px",
+                textTransform: "none",
+                backgroundColor: theme.palette.secondary.main,
+                "&:hover": {
+                  bgcolor: theme.palette.primary.main,
+                },
+              }}
               onClick={handleExport}
               startIcon={<DownloadIcon />}
             >
@@ -340,10 +382,6 @@ const ArtistImportExport: React.FC<ArtistImportExportProps> = ({
           </Box>
         </TabPanel>
       </DialogContent>
-
-      <DialogActions>
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
     </Dialog>
   );
 };
