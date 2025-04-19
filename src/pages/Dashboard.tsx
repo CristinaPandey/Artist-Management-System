@@ -188,14 +188,14 @@ import {
   CardContent,
   Typography,
   CardHeader,
-  Divider,
+  // Divider,
   Paper,
-  Avatar,
+  // Avatar,
   IconButton,
   Chip,
   List,
   ListItem,
-  ListItemIcon,
+  // ListItemIcon,
   ListItemText,
   ListItemAvatar,
   Badge,
@@ -203,7 +203,16 @@ import {
   LinearProgress,
   Button,
   Tooltip,
+  // Menu,
+  // MenuItem,
 } from "@mui/material";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Avatar from "@mui/material/Avatar";
+import Divider from "@mui/material/Divider";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import LogoutIcon from "@mui/icons-material/Logout";
+// import ListItemIcon from "@mui/material/ListItemIcon";
 import {
   Person as PersonIcon,
   MusicNote as MusicNoteIcon,
@@ -217,9 +226,11 @@ import {
   Delete as DeleteIcon,
   Add as AddIcon,
   Refresh as RefreshIcon,
+  // Logout as LogoutIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../store/authContext";
 import { ROLES } from "../constants/roles";
+import { useNavigate } from "react-router-dom";
 
 // Mock data for demonstration
 const recentActivities = [
@@ -260,13 +271,32 @@ const topArtists = [
 ];
 
 const Dashboard = () => {
-  // Uncomment when integrating with your auth system
+  const navigate = useNavigate();
   // const { user } = useAuth();
 
   // For demo purposes
   const user = {
     username: "Admin User",
     role: ROLES.SUPER_ADMIN,
+  };
+
+  // Add state for menu
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  // Menu handlers
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    // Your logout logic here
+    navigate("/"); // Redirect to home
+    handleClose(); // Close the menu
   };
 
   const stats = [
@@ -322,12 +352,13 @@ const Dashboard = () => {
       sx={{ p: 3, maxWidth: "100%", bgcolor: "#f5f5f7", minHeight: "100vh" }}
     >
       {/* Header with greeting */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 4, maxWidth: "100%" }}>
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            width: "100%",
           }}
         >
           <Typography
@@ -352,9 +383,60 @@ const Dashboard = () => {
               </IconButton>
             </Tooltip>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Avatar sx={{ bgcolor: "primary.main" }}>
-                {user?.username?.[0] || "A"}
-              </Avatar>
+              <IconButton onClick={handleClick} size="small">
+                <Avatar sx={{ bgcolor: "primary.main" }}>
+                  {user?.username?.[0] || "A"}
+                </Avatar>
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                id="account-menu"
+                open={open}
+                onClose={handleClose}
+                onClick={handleClose}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: "visible",
+                    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                    mt: 1.5,
+                    "& .MuiAvatar-root": {
+                      width: 32,
+                      height: 32,
+                      ml: -0.5,
+                      mr: 1,
+                    },
+                    "&:before": {
+                      content: '""',
+                      display: "block",
+                      position: "absolute",
+                      top: 0,
+                      right: 14,
+                      width: 10,
+                      height: 10,
+                      bgcolor: "background.paper",
+                      transform: "translateY(-50%) rotate(45deg)",
+                      zIndex: 0,
+                    },
+                  },
+                }}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+              >
+                {/* <MenuItem onClick={handleClose}>
+                  <Avatar /> Profile
+                </MenuItem>
+                <MenuItem onClick={handleClose}>
+                  <Avatar /> My account
+                </MenuItem> */}
+                {/* <Divider /> */}
+                <MenuItem onClick={handleLogout}>
+                  <ListItemIcon>
+                    <LogoutIcon fontSize="small" />
+                  </ListItemIcon>
+                  Logout
+                </MenuItem>
+              </Menu>
               <Box sx={{ display: { xs: "none", sm: "block" } }}>
                 <Typography variant="subtitle2" fontWeight="bold">
                   {user?.username || "User"}
