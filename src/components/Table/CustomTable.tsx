@@ -126,22 +126,6 @@ export default function CustomTable({
               </TableRow>
             ))}
           </DefTableBody>
-          {/* <TableFooter>
-            {table.getFooterGroups().map((footerGroup) => (
-              <TableRow key={footerGroup.id}>
-                {footerGroup.headers.map((header) => (
-                  <DefTableCell key={header.id} sx={{}}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.footer,
-                          header.getContext()
-                        )}
-                  </DefTableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableFooter> */}
         </Table>
       </TableContainer>
 

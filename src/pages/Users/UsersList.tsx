@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  Paper,
+  Typography,
+  useTheme,
+  CircularProgress,
+} from "@mui/material";
 import { useForm, SubmitHandler } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -157,7 +164,7 @@ const UsersList: React.FC = () => {
   //   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ width: "100%", p: { xs: 2, sm: 3 } }}>
       <SuccessBar
         snackbarOpen={openSuccess}
         setSnackbarOpen={setOpenSuccess}
@@ -169,7 +176,16 @@ const UsersList: React.FC = () => {
         message={errorMessage}
       />
 
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+          flexDirection: { xs: "column", sm: "row" },
+          gap: { xs: 2, sm: 0 },
+        }}
+      >
         <Typography
           sx={{
             my: 1,
@@ -208,25 +224,32 @@ const UsersList: React.FC = () => {
           <UserEntry open={isModalOpen} onClose={handleCloseModal} />
         </Box>
       </Box>
-      <Box
-        sx={{
-          maxWidth: "1200px",
-          // width: { md: "100%", lg: "120%", xl: "125%" },
-          width: "90%",
-        }}
-      >
-        <CustomTable
-          columns={UserTableListEntryHeader}
-          data={users}
-          pagination={pagination}
-          setPagination={setPagination}
-          next={next}
-          prev={prev}
-          pageCount={totalPageCount}
-          setPageSize={setPageSize}
-          loading={loading}
-        />
-      </Box>
+
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", m: 5 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          {users.length === 0 ? (
+            <Paper sx={{ p: 4, textAlign: "center" }}>
+              <Typography>No songs found for this artist.</Typography>
+            </Paper>
+          ) : (
+            <CustomTable
+              columns={UserTableListEntryHeader}
+              data={users}
+              pagination={pagination}
+              setPagination={setPagination}
+              next={next}
+              prev={prev}
+              pageCount={totalPageCount}
+              setPageSize={setPageSize}
+              loading={loading}
+            />
+          )}
+        </>
+      )}
     </Box>
   );
 };

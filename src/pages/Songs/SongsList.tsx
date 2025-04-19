@@ -212,10 +212,6 @@ const SongsList: React.FC = () => {
     handleDialogClose();
   };
 
-  const handlePageChange = (event: unknown, page: number) => {
-    setCurrentPage(page);
-  };
-
   //   const canModifySongs = user?.role === "artist";
 
   return (

@@ -233,19 +233,31 @@ const ArtistsList: React.FC = () => {
         </Box>
       </Box>
 
-      <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <CustomTable
-          columns={ArtistTableListEntryHeader}
-          data={artists}
-          pagination={pagination}
-          setPagination={setPagination}
-          next={next}
-          prev={prev}
-          pageCount={totalPageCount}
-          setPageSize={setPageSize}
-          loading={loading}
-        />
-      </Paper>
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", m: 5 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          {artists.length === 0 ? (
+            <Paper sx={{ p: 4, textAlign: "center" }}>
+              <Typography>No songs found for this artist.</Typography>
+            </Paper>
+          ) : (
+            <CustomTable
+              columns={ArtistTableListEntryHeader}
+              data={artists}
+              pagination={pagination}
+              setPagination={setPagination}
+              next={next}
+              prev={prev}
+              pageCount={totalPageCount}
+              setPageSize={setPageSize}
+              loading={loading}
+            />
+          )}
+        </>
+      )}
 
       {/* {openDialog && (
         <AddArtistDialog
