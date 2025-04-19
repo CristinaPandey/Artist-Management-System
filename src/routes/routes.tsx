@@ -1,8 +1,8 @@
 import { lazy } from "react";
 
 import SongsList from "../pages/Songs/SongsList";
-import UserIndex from "../pages/Users/UserIndex";
 import ArtistIndex from "../pages/Artists/ArtistIndex";
+import UsersList from "../pages/Users/UsersList";
 
 const Dashboard = lazy(() => import("./../pages/Dashboard"));
 
@@ -13,7 +13,7 @@ const routes = [
   },
   {
     path: "/users",
-    component: <UserIndex />,
+    component: <UsersList />,
   },
 
   {

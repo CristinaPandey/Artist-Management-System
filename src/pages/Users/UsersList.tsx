@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Button, Typography, useTheme } from "@mui/material";
 import { useForm, SubmitHandler } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 import SuccessBar from "../../components/Snackbar/SuccessBar";
 import ErrorBar from "../../components/Snackbar/ErrorBar";
 // import { useAuth } from "../../store/authContext";
 import { User, UserRole } from "../../types/user";
 import { ROLES } from "../../constants/roles";
-import UserForm from "./UserForm";
 import { PaginationState } from "@tanstack/react-table";
 import CustomTable from "../../components/Table/CustomTable";
 import { UserTableListEntryHeader } from "../../constants/User/UserTableHeader";
+import UserEntry from "./UserEntry";
 
 const schema = yup.object().shape({
   username: yup.string().required("Username is required"),
@@ -62,6 +63,7 @@ const UsersList: React.FC = () => {
   const [next, setNext] = useState<boolean>(false);
   const [prev, setPrev] = useState<boolean>(false);
   const [pageSize, setPageSize] = useState<number>(10);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     control,
@@ -134,6 +136,13 @@ const UsersList: React.FC = () => {
       setLoading(false);
     }
   };
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   const totalPageCount = Math.ceil(users.length / pageSize);
 
@@ -148,7 +157,7 @@ const UsersList: React.FC = () => {
   //   }
 
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
       <SuccessBar
         snackbarOpen={openSuccess}
         setSnackbarOpen={setOpenSuccess}
@@ -175,6 +184,29 @@ const UsersList: React.FC = () => {
         >
           Users Management
         </Typography>
+        <Box sx={{ display: "flex", flexDirection: "flex-end" }}>
+          <Button
+            variant="contained"
+            sx={{
+              borderRadius: "100px",
+              padding: "6px 24px",
+              fontSize: "14px",
+              fontWeight: 600,
+              lineHeight: "20px",
+              textTransform: "none",
+              backgroundColor: theme.palette.secondary.main,
+              "&:hover": {
+                bgcolor: theme.palette.primary.main,
+              },
+            }}
+            startIcon={<PersonAddIcon />}
+            onClick={handleOpenModal}
+          >
+            Add New User
+          </Button>
+
+          <UserEntry open={isModalOpen} onClose={handleCloseModal} />
+        </Box>
       </Box>
       <Box
         sx={{
