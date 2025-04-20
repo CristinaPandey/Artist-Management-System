@@ -10,12 +10,12 @@ import EditStockModal from "../../pages/Users/EditModal";
 
 export const UserTableListEntryHeader: ColumnDef<User>[] = [
   {
-    header: "SN",
-    accessorKey: "sn",
+    header: "ID",
+    accessorKey: "id",
     cell: (data) => {
       return (
         <Typography sx={{ fontSize: "14px", fontWeight: 400 }}>
-          {data?.row?.index + 1}
+          {data?.row?.id}
         </Typography>
       );
     },
@@ -57,9 +57,16 @@ export const UserTableListEntryHeader: ColumnDef<User>[] = [
             fontWeight: 400,
             textAlign: "left",
             textTransform: "capitalize",
+            width: "max-content",
           }}
         >
-          {data?.row?.original?.role}
+          {data?.row?.original?.role === "super_admin"
+            ? "Super Admin"
+            : data?.row?.original?.role === "artist_manager"
+            ? "Artist Manager"
+            : data?.row?.original?.role === "artist"
+            ? "Artist"
+            : data?.row?.original?.role}
         </Typography>
       );
     },

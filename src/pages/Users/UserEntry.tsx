@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -15,28 +15,62 @@ import {
   styled,
   useTheme,
   IconButton,
+  InputAdornment,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import RoundedButton from "../../components/Button/Button";
 import SuccessBar from "../../components/Snackbar/SuccessBar";
 import ErrorBar from "../../components/Snackbar/ErrorBar";
 import { UserRole } from "../../types";
+import { ROLES } from "../../constants/roles";
+import { RegisterData } from "../../types/user";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { useAddUserMutation } from "../../services/Users/UsersServices";
+import { Cake } from "@mui/icons-material";
 
-const schema = yup
-  .object()
-  .shape({
-    username: yup.string().required().label("User Name"),
-    email: yup.string().required().label("Email "),
-    password: yup.string().required().label("Password"),
-    role: yup.string().required().label("Role Type"),
-  })
-  .required();
+const schema = yup.object({
+  username: yup.string().required("Username is required"),
+  email: yup.string().email("Invalid email").required("Email is required"),
+  password: yup
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character"
+    )
+    .required("Password is required"),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password")], "Passwords must match")
+    .required("Confirm password is required"),
+  first_name: yup.string().required("First name is required"),
+  last_name: yup.string().required("Last name is required"),
+  gender: yup.string().required("Gender is required"),
+  address: yup.string().required("Address is required"),
+  phone_number: yup
+    .string()
+    .matches(/^\+?[0-9]{10,14}$/, "Phone number must be valid")
+    .required("Phone number is required"),
+  date_of_birth: yup
+    .date()
+    .max(new Date(), "Date of birth cannot be in the future")
+    .required("Date of birth is required")
+    .nullable(),
+  role: yup
+    .mixed<UserRole>()
+    .oneOf(Object.values(ROLES))
+    .required("Role is required"),
+});
 
-export interface UserFormInput {
-  username: string;
-  email: string;
-  password: string;
-  role: string;
+interface ExtendedRegisterData extends RegisterData {
+  first_name: string;
+  last_name: string;
+  gender: string;
+  address: string;
+  phone_number: string;
+  date_of_birth: Date | null;
 }
 
 interface UserEntryProps {
@@ -66,15 +100,23 @@ export default function UserEntry({ open, onClose }: UserEntryProps) {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<UserFormInput>({
+  } = useForm<ExtendedRegisterData>({
     resolver: yupResolver(schema),
     defaultValues: {
       username: "",
       email: "",
       password: "",
-      role: "super_admin",
+      confirmPassword: "",
+      first_name: "",
+      last_name: "",
+      gender: "",
+      address: "",
+      phone_number: "",
+      role: ROLES.ARTIST_MANAGER,
+      date_of_birth: null,
     },
   });
+  const [successClose, setSuccessClose] = useState<boolean>(false);
 
   const [errorMsgs, setErrorMsgs] = useState<string>("");
   const [successMsgs, setSuccessMsgs] = useState<string>("");
@@ -83,20 +125,40 @@ export default function UserEntry({ open, onClose }: UserEntryProps) {
   const [snackbarSuccessOpen, setSnackbarSuccessOpen] =
     useState<boolean>(false);
 
-  const handleUserSubmit = async (data: UserFormInput) => {
-    try {
-      console.log("Form data:", data);
+  const { mutate: AuthMutation, isPending } = useAddUserMutation();
 
-      // On success
-      setSuccessMsgs("User added successfully!");
-      setSnackbarSuccessOpen(true);
-      reset();
-      onClose();
-    } catch (error) {
-      // On error
-      setErrorMsgs("Failed to add user. Please try again.");
-      setSnackbarErrorOpen(true);
-    }
+  const handleUserSubmit = async (data: ExtendedRegisterData) => {
+    const payload = {
+      username: data?.username,
+      email: data?.email,
+      password: data?.password,
+      first_name: data?.first_name,
+      last_name: data.last_name,
+      gender: data?.gender,
+      address: data?.address,
+      phone_number: data?.phone_number,
+      // date_of_birth: data?.date_of_birth,
+      date_of_birth: data?.date_of_birth || new Date(),
+      role: data.role || ROLES.ARTIST_MANAGER,
+    };
+    AuthMutation(payload, {
+      onSuccess: () => {
+        setSuccessMsgs("User created Successful!");
+        setSnackbarErrorOpen(false);
+        setSnackbarSuccessOpen(true);
+        setSuccessClose(false);
+      },
+      onError: (error) => {
+        if (isAxiosError(error) && error.response) {
+          setErrorMsgs(
+            error.response.data.message
+              ? error.response.data.message
+              : `Error Occured while logging in.`
+          );
+          setSnackbarErrorOpen(true);
+        }
+      },
+    });
   };
 
   return (
@@ -225,6 +287,109 @@ export default function UserEntry({ open, onClose }: UserEntryProps) {
                   />
                 </Box>
                 <Box>
+                  <InputLabel sx={{ fontWeight: 600 }}>
+                    Confirm Password
+                  </InputLabel>
+
+                  <Controller
+                    name="confirmPassword"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        sx={{ width: "300px" }}
+                        {...field}
+                        size="small"
+                        fullWidth
+                        error={!!errors.confirmPassword}
+                        helperText={errors.confirmPassword?.message}
+                      />
+                    )}
+                  />
+                </Box>
+              </Box>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 2,
+                }}
+              >
+                <Box>
+                  <InputLabel sx={{ fontWeight: 600 }}>First Name</InputLabel>
+                  <Controller
+                    name="first_name"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        sx={{ width: "300px" }}
+                        type="first_name"
+                        {...field}
+                        fullWidth
+                        size="small"
+                        placeholder="Please Enter First Name"
+                        error={Boolean(errors.first_name)}
+                        helperText={
+                          errors.first_name && errors.first_name.message
+                        }
+                      />
+                    )}
+                  />
+                </Box>
+                <Box>
+                  <InputLabel sx={{ fontWeight: 600 }}>Last Name</InputLabel>
+
+                  <Controller
+                    name="last_name"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        sx={{ width: "300px" }}
+                        {...field}
+                        size="small"
+                        fullWidth
+                        label="Last Name"
+                        error={!!errors.last_name}
+                        helperText={errors.last_name?.message}
+                      />
+                    )}
+                  />
+                </Box>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 2,
+                }}
+              >
+                <Box>
+                  <InputLabel sx={{ fontWeight: 600 }}>Gender</InputLabel>
+                  <Box sx={{ width: "300px" }}>
+                    <Controller
+                      name="gender"
+                      control={control}
+                      render={({ field }) => (
+                        <Select {...field} size="small" fullWidth>
+                          <MenuItem value="male">Male</MenuItem>
+                          <MenuItem value="female">Female</MenuItem>
+                          <MenuItem value="other">Other</MenuItem>
+                          <MenuItem value="prefer_not_to_say">
+                            Prefer not to say
+                          </MenuItem>
+                        </Select>
+                      )}
+                    />
+                    {errors.gender && (
+                      <Typography sx={{ fontSize: "12px" }} color="error">
+                        {errors.gender.message}
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+                <Box>
                   <InputLabel sx={{ fontWeight: 600 }}>Role</InputLabel>
                   <Box sx={{ width: "300px" }}>
                     <Controller
@@ -252,6 +417,81 @@ export default function UserEntry({ open, onClose }: UserEntryProps) {
                   </Box>
                 </Box>
               </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 2,
+                }}
+              >
+                <Box>
+                  <InputLabel sx={{ fontWeight: 600 }}>Address</InputLabel>
+                  <Controller
+                    name="address"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        sx={{ width: "300px" }}
+                        type="address"
+                        {...field}
+                        fullWidth
+                        size="small"
+                        placeholder="Please Enter Address"
+                        error={Boolean(errors.address)}
+                        helperText={errors.address && errors.address.message}
+                      />
+                    )}
+                  />
+                </Box>
+                <Box>
+                  <InputLabel sx={{ fontWeight: 600 }}>Phone Number</InputLabel>
+
+                  <Controller
+                    name="phone_number"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        sx={{ width: "300px" }}
+                        {...field}
+                        size="small"
+                        fullWidth
+                        label="Phone Number"
+                        error={!!errors.phone_number}
+                        helperText={errors.phone_number?.message}
+                      />
+                    )}
+                  />
+                </Box>
+              </Box>
+              <Controller
+                name="date_of_birth"
+                control={control}
+                render={({ field }) => (
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <DatePicker
+                      label="Date of Birth"
+                      value={field.value}
+                      onChange={(newValue: any) => field.onChange(newValue)}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                          error: !!errors.date_of_birth,
+                          helperText: errors.date_of_birth?.message,
+                          InputProps: {
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Cake fontSize="small" />
+                              </InputAdornment>
+                            ),
+                          },
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
+                )}
+              />
             </Box>
 
             <Box
@@ -265,7 +505,7 @@ export default function UserEntry({ open, onClose }: UserEntryProps) {
               <RoundedButton
                 title1="Complete User Entry"
                 onClick1={handleSubmit(handleUserSubmit)}
-                // loading={isPending}
+                loading={isPending}
               />
             </Box>
           </Box>
