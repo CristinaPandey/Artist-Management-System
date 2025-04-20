@@ -41,7 +41,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import RoundedButton from "../components/Button/Button";
 import SuccessBar from "../components/Snackbar/SuccessBar";
 import ErrorBar from "../components/Snackbar/ErrorBar";
-import { RegisterData } from "../types/user";
+import { RegisterData, UserRole } from "../types/user";
 import { ROLES } from "../constants/roles";
 import { useRegisterMutation } from "../services/RegisterServices";
 import { isAxiosError } from "axios";
@@ -75,6 +75,10 @@ const schema = yup.object({
     .max(new Date(), "Date of birth cannot be in the future")
     .required("Date of birth is required")
     .nullable(),
+  role: yup
+    .mixed<UserRole>()
+    .oneOf(Object.values(ROLES))
+    .required("Role is required"),
 });
 
 // Extended RegisterData type (should be updated in your types/user.ts file)
@@ -129,7 +133,7 @@ const Register: React.FC = () => {
 
   const handleNext = async () => {
     const fields = [
-      ["username", "email", "password", "confirmPassword"],
+      ["username", "email", "role", "password", "confirmPassword"],
       ["first_name", "last_name", "gender"],
       ["address", "phone_number", "date_of_birth"],
     ];
@@ -159,7 +163,7 @@ const Register: React.FC = () => {
       phone_number: data?.phone_number,
       // date_of_birth: data?.date_of_birth,
       date_of_birth: data?.date_of_birth || new Date(),
-      role: ROLES.ARTIST_MANAGER,
+      role: data.role || ROLES.ARTIST_MANAGER,
     };
 
     AuthMutation(payload, {
@@ -233,6 +237,30 @@ const Register: React.FC = () => {
                 error={!!errors.email}
                 helperText={errors.email?.message}
               />
+            )}
+          />
+
+          <Controller
+            name="role"
+            control={control}
+            defaultValue={ROLES.ARTIST_MANAGER}
+            render={({ field }) => (
+              <FormControl fullWidth size="small" error={!!errors.role}>
+                <InputLabel id="role-label">Role</InputLabel>
+                <Select
+                  {...field}
+                  labelId="role-label"
+                  label="role"
+                  value={field.value || ROLES.ARTIST_MANAGER}
+                >
+                  <MenuItem value="super_admin">Super Admin</MenuItem>
+                  <MenuItem value="artist_manager">Artist Manager</MenuItem>
+                  <MenuItem value="artist">Artist</MenuItem>
+                </Select>
+                {errors.role && (
+                  <FormHelperText>{errors.role.message}</FormHelperText>
+                )}
+              </FormControl>
             )}
           />
 
