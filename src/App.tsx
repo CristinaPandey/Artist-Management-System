@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import { ErrorProvider } from "./context/ErrorContextProvider.tsx";
 import { NewTheme, themeSettings } from "./theme";
 import MainRoutes from "./routes/MainRoutes";
+import { AuthProvider } from "./store/authContext";
 
 function App() {
   const customTheme = deepmerge(themeSettings(), NewTheme);
@@ -29,21 +30,24 @@ function App() {
     <Box>
       <BrowserRouter>
         <QueryClientProvider client={queryClient}>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <GlobalStyles
-              styles={{
-                "@global": {
-                  "html, body, #root": {
-                    height: "100%",
-                    width: "100%",
+          <AuthProvider>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <GlobalStyles
+                styles={{
+                  "@global": {
+                    "html, body, #root": {
+                      height: "100%",
+                      width: "100%",
+                    },
                   },
-                },
-              }}
-            />
-            <MainRoutes />
-            {/* <GlobalError /> */}
-          </ThemeProvider>
+                }}
+              />
+
+              <MainRoutes />
+              {/* <GlobalError /> */}
+            </ThemeProvider>
+          </AuthProvider>
         </QueryClientProvider>
       </BrowserRouter>
     </Box>

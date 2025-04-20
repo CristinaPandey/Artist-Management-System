@@ -21,6 +21,7 @@ import { PaginationState } from "@tanstack/react-table";
 import CustomTable from "../../components/Table/CustomTable";
 import { UserTableListEntryHeader } from "../../constants/User/UserTableHeader";
 import UserEntry from "./UserEntry";
+import { useGetAllUserList } from "../../services/Users/UsersServices";
 
 const schema = yup.object().shape({
   username: yup.string().required("Username is required"),
@@ -53,7 +54,7 @@ const UsersList: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [loading, setLoading] = useState<boolean>(true);
+  // const [loading, setLoading] = useState<boolean>(true);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -89,60 +90,10 @@ const UsersList: React.FC = () => {
     },
   });
 
-  useEffect(() => {
-    fetchUsers();
-  }, [page, rowsPerPage]);
+  const { data: userList, isLoading } = useGetAllUserList();
 
   // Mock function to fetch users
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const mockUsers: User[] = [
-        {
-          id: 1,
-          username: "admin",
-          email: "admin@example.com",
-          role: "super_admin" as UserRole,
-          createdAt: "2023-01-01T00:00:00Z",
-          updatedAt: "2023-01-01T00:00:00Z",
-        },
-        {
-          id: 2,
-          username: "manager1",
-          email: "manager1@example.com",
-          role: "artist_manager" as UserRole,
-          createdAt: "2023-01-02T00:00:00Z",
-          updatedAt: "2023-01-02T00:00:00Z",
-        },
-        {
-          id: 3,
-          username: "artist1",
-          email: "artist1@example.com",
-          role: "artist" as UserRole,
-          createdAt: "2023-01-03T00:00:00Z",
-          updatedAt: "2023-01-03T00:00:00Z",
-        },
-        {
-          id: 4,
-          username: "artist2",
-          email: "artist2@example.com",
-          role: "artist" as UserRole,
-          createdAt: "2023-01-04T00:00:00Z",
-          updatedAt: "2023-01-04T00:00:00Z",
-        },
-      ];
-
-      setUsers(mockUsers);
-    } catch (error) {
-      setErrorMessage("Failed to fetch users");
-      setOpenError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
@@ -225,27 +176,27 @@ const UsersList: React.FC = () => {
         </Box>
       </Box>
 
-      {loading ? (
+      {isLoading ? (
         <Box sx={{ display: "flex", justifyContent: "center", m: 5 }}>
           <CircularProgress />
         </Box>
       ) : (
         <>
-          {users.length === 0 ? (
+          {userList?.users.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: "center" }}>
               <Typography>No songs found for this artist.</Typography>
             </Paper>
           ) : (
             <CustomTable
               columns={UserTableListEntryHeader}
-              data={users}
+              data={userList.users || []}
               pagination={pagination}
               setPagination={setPagination}
               next={next}
               prev={prev}
               pageCount={totalPageCount}
               setPageSize={setPageSize}
-              loading={loading}
+              loading={isLoading}
             />
           )}
         </>

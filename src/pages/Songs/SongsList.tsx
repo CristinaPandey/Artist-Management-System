@@ -18,6 +18,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { PaginationState } from "@tanstack/react-table";
 import SongEntry from "./SongForm";
 import { SongsTableListEntryHeader } from "../../constants/Songs/SongsTableHeader";
+import { useGetAllArtistSongList } from "../../services/Songs/SongServices";
 // import AddSongDialog from "../Dialogs/AddSongDialog";
 // import { useAuth } from "../../contexts/AuthContext";
 
@@ -27,13 +28,15 @@ export interface Song {
   genre: string;
   release_date: string;
   artist_id: number;
+  album: string;
+  duration: number;
 }
 
 const SongsList: React.FC = () => {
   const theme = useTheme();
   const { artistId } = useParams<{ artistId: string }>();
-  const [songs, setSongs] = useState<Song[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  // const [songs, setSongs] = useState<Song[]>([]);
+  // const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
   const [editSong, setEditSong] = useState<Song | null>(null);
@@ -50,123 +53,7 @@ const SongsList: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchSongs();
-  }, [currentPage, rowsPerPage]);
-
-  const fetchSongs = async () => {
-    // try {
-    //   setLoading(true);
-    //   const response = await fetch(
-    //     `/api/artists/${artistId}/songs?page=${page}&limit=${songsPerPage}`
-    //   );
-    setLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const SongsData: Song[] = [
-        {
-          id: 1,
-          title: "Bohemian Rhapsody",
-          genre: "Rock",
-          release_date: "1975-10-31",
-          artist_id: 1,
-        },
-        {
-          id: 2,
-          title: "Shape of You",
-          genre: "Pop",
-          release_date: "2017-01-06",
-          artist_id: 2,
-        },
-        {
-          id: 3,
-          title: "Blinding Lights",
-          genre: "Synth-pop",
-          release_date: "2019-11-29",
-          artist_id: 3,
-        },
-        {
-          id: 4,
-          title: "Rolling in the Deep",
-          genre: "Soul",
-          release_date: "2010-11-29",
-          artist_id: 4,
-        },
-        {
-          id: 5,
-          title: "Uptown Funk",
-          genre: "Funk",
-          release_date: "2014-11-10",
-          artist_id: 5,
-        },
-        {
-          id: 6,
-          title: "Despacito",
-          genre: "Reggaeton",
-          release_date: "2017-01-12",
-          artist_id: 6,
-        },
-        {
-          id: 7,
-          title: "Someone Like You",
-          genre: "Pop",
-          release_date: "2011-01-24",
-          artist_id: 7,
-        },
-        {
-          id: 8,
-          title: "Take On Me",
-          genre: "Synth-pop",
-          release_date: "1984-04-16",
-          artist_id: 8,
-        },
-        {
-          id: 9,
-          title: "Sweet Child O' Mine",
-          genre: "Rock",
-          release_date: "1987-08-17",
-          artist_id: 9,
-        },
-        {
-          id: 10,
-          title: "Billie Jean",
-          genre: "Pop",
-          release_date: "1983-01-02",
-          artist_id: 10,
-        },
-      ];
-      setSongs(SongsData);
-
-      //   if (!response.ok) {
-      //     throw new Error("Failed to fetch songs");
-      //   }
-
-      //   const data = await response.json();
-      //   //   setSongs(data.songs);
-      //   setTotalPages(Math.ceil(data.total / songsPerPage));
-      //   setLoading(false);
-      // } catch (err) {
-      //   setError("Error fetching songs. Please try again.");
-      //   setLoading(false);
-      // }
-    } catch (error) {
-      setError("Failed to fetch users");
-      //   setOpenError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    console.log("Songs fetched:", songs);
-  }, [songs]);
-
-  //   useEffect(() => {
-  //     if (artistId) {
-  //       fetchSongs(currentPage);
-  //     }
-  //   }, [artistId, currentPage, rowsPerPage]);
+  const { data: artistSongList, isLoading } = useGetAllArtistSongList();
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -176,31 +63,7 @@ const SongsList: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const totalPageCount = Math.ceil(songs.length / pageSize);
-
-  const handleDelete = async (songId: number) => {
-    if (window.confirm("Are you sure you want to delete this song?")) {
-      try {
-        const response = await fetch(`/api/songs/${songId}`, {
-          method: "DELETE",
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to delete song");
-        }
-
-        // Refresh songs list
-        // fetchSongs(currentPage);
-      } catch (err) {
-        setError("Error deleting song. Please try again.");
-      }
-    }
-  };
-
-  const handleEdit = (song: Song) => {
-    setEditSong(song);
-    setIsAddDialogOpen(true);
-  };
+  // const totalPageCount = Math.ceil(artistSongList.length / pageSize);
 
   const handleDialogClose = () => {
     setIsAddDialogOpen(false);
@@ -208,7 +71,6 @@ const SongsList: React.FC = () => {
   };
 
   const handleSongAdded = () => {
-    // fetchSongs(currentPage);
     handleDialogClose();
   };
 
@@ -273,27 +135,27 @@ const SongsList: React.FC = () => {
         </Alert>
       )}
 
-      {loading ? (
+      {isLoading ? (
         <Box sx={{ display: "flex", justifyContent: "center", m: 5 }}>
           <CircularProgress />
         </Box>
       ) : (
         <>
-          {songs.length === 0 ? (
+          {artistSongList.songs.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: "center" }}>
               <Typography>No songs found for this artist.</Typography>
             </Paper>
           ) : (
             <CustomTable
               columns={SongsTableListEntryHeader}
-              data={songs}
+              data={artistSongList.songs || []}
               pagination={pagination}
               setPagination={setPagination}
               next={next}
               prev={prev}
-              pageCount={totalPageCount}
+              // pageCount={totalPageCount}
               setPageSize={setPageSize}
-              loading={loading}
+              loading={isLoading}
             />
           )}
         </>

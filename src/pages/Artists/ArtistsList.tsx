@@ -34,16 +34,16 @@ import { ArtistTableListEntryHeader } from "../../constants/Artist/ArtistTableLi
 import { PaginationState } from "@tanstack/react-table";
 import ArtistEntry from "./ArtistForm";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import { useGetAllArtistList } from "../../services/Artists/ArtistServices";
 
 const ArtistsList: React.FC = () => {
   const theme = useTheme();
   //   const { hasPermission } = useAuth();
   const navigate = useNavigate();
 
-  const [artists, setArtists] = useState<Artist[]>([]);
+  // const [artists, setArtists] = useState<Artist[]>([]);
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [loading, setLoading] = useState<boolean>(true);
 
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [currentArtist, setCurrentArtist] = useState<Artist | null>(null);
@@ -64,66 +64,7 @@ const ArtistsList: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchArtists();
-  }, [page, rowsPerPage]);
-
-  const fetchArtists = async () => {
-    setLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock data
-      const mockArtists: Artist[] = [
-        {
-          id: 1,
-          name: "John Doe",
-          genre: "Rock",
-          //   country: "USA",
-          //   formationYear: 2010,
-          createdAt: "2023-01-01T00:00:00Z",
-          updatedAt: "2023-01-01T00:00:00Z",
-        },
-        {
-          id: 2,
-          name: "Jane Smith",
-          genre: "Pop",
-          //   country: "UK",
-          //   formationYear: 2015,
-          createdAt: "2023-01-02T00:00:00Z",
-          updatedAt: "2023-01-02T00:00:00Z",
-        },
-        {
-          id: 3,
-          name: "Band XYZ",
-          genre: "Jazz",
-          //   country: "France",
-          //   formationYear: 2008,
-          createdAt: "2023-01-03T00:00:00Z",
-          updatedAt: "2023-01-03T00:00:00Z",
-        },
-      ];
-
-      setArtists(mockArtists);
-    } catch (error) {
-      setErrorMessage("Failed to fetch artists");
-      setOpenError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOpenDialog = (artist?: Artist) => {
-    if (artist) {
-      setIsEdit(true);
-      setCurrentArtist(artist);
-    } else {
-      setIsEdit(false);
-      setCurrentArtist(null);
-    }
-    setOpenDialog(true);
-  };
+  const { data: artistList, isLoading } = useGetAllArtistList();
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -133,7 +74,7 @@ const ArtistsList: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const totalPageCount = Math.ceil(artists.length / pageSize);
+  // const totalPageCount = Math.ceil(artistList.length / pageSize);
 
   // Check access permission
   //   const canView = hasPermission([ROLES.SUPER_ADMIN, ROLES.ARTIST_MANAGER]);
@@ -233,27 +174,27 @@ const ArtistsList: React.FC = () => {
         </Box>
       </Box>
 
-      {loading ? (
+      {isLoading ? (
         <Box sx={{ display: "flex", justifyContent: "center", m: 5 }}>
           <CircularProgress />
         </Box>
       ) : (
         <>
-          {artists.length === 0 ? (
+          {artistList?.artists.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: "center" }}>
               <Typography>No songs found for this artist.</Typography>
             </Paper>
           ) : (
             <CustomTable
               columns={ArtistTableListEntryHeader}
-              data={artists}
+              data={artistList?.artists || []}
               pagination={pagination}
               setPagination={setPagination}
               next={next}
               prev={prev}
-              pageCount={totalPageCount}
+              // pageCount={totalPageCount}
               setPageSize={setPageSize}
-              loading={loading}
+              loading={isLoading}
             />
           )}
         </>
@@ -277,7 +218,7 @@ const ArtistsList: React.FC = () => {
         message="Are you sure you want to delete this artist? This action cannot be undone."
       /> */}
 
-      {openImportExport && (
+      {/* {openImportExport && (
         <ArtistImportExport
           open={openImportExport}
           onClose={() => setOpenImportExport(false)}
@@ -287,7 +228,7 @@ const ArtistsList: React.FC = () => {
             setOpenSuccess(true);
           }}
         />
-      )}
+      )} */}
     </Box>
   );
 };
