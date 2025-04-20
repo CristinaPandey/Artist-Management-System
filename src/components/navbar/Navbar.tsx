@@ -273,8 +273,7 @@ const NavBar: React.FC<NavBarProps> = ({
               },
             }}
             onClick={() => {
-              // Handle logout
-              navigate("/");
+              handleLogout();
             }}
           >
             <ListItemIcon sx={{ minWidth: 40, color: "error.main" }}>

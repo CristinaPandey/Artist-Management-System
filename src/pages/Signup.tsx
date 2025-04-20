@@ -43,6 +43,8 @@ import SuccessBar from "../components/Snackbar/SuccessBar";
 import ErrorBar from "../components/Snackbar/ErrorBar";
 import { RegisterData } from "../types/user";
 import { ROLES } from "../constants/roles";
+import { useRegisterMutation } from "../services/RegisterServices";
+import { isAxiosError } from "axios";
 
 // Extended schema with new fields
 const schema = yup.object({
@@ -99,6 +101,16 @@ const Register: React.FC = () => {
     resolver: yupResolver(schema),
     mode: "onChange",
     defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      first_name: "",
+      last_name: "",
+      gender: "",
+      address: "",
+      phone_number: "",
+      role: ROLES.ARTIST_MANAGER,
       date_of_birth: null,
     },
   });
@@ -112,6 +124,8 @@ const Register: React.FC = () => {
     useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState(0);
+
+  const { mutate: AuthMutation, isPending } = useRegisterMutation();
 
   const handleNext = async () => {
     const fields = [
@@ -135,30 +149,36 @@ const Register: React.FC = () => {
 
     // Set default role for new registration
     const payload = {
-      ...data,
+      username: data?.username,
+      email: data?.email,
+      password: data?.password,
+      first_name: data?.first_name,
+      last_name: data.last_name,
+      gender: data?.gender,
+      address: data?.address,
+      phone_number: data?.phone_number,
+      // date_of_birth: data?.date_of_birth,
+      date_of_birth: data?.date_of_birth || new Date(),
       role: ROLES.ARTIST_MANAGER,
     };
 
-    try {
-      // Mock API call - replace with actual API call
-      console.log("Registration payload:", payload);
-
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setSuccessMessage("Registration successful! Please login.");
-      setOpenSuccess(true);
-
-      // Redirect to login after a short delay
-      setTimeout(() => {
-        navigate("/");
-      }, 3000);
-    } catch (error) {
-      setErrorMessage("Error occurred during registration.");
-      setOpenError(true);
-    } finally {
-      setIsLoading(false);
-    }
+    AuthMutation(payload, {
+      onSuccess: () => {
+        setSuccessMessage("Signup Successful!");
+        setOpenError(false);
+        setOpenSuccess(true);
+      },
+      onError: (error) => {
+        if (isAxiosError(error) && error.response) {
+          setErrorMessage(
+            error.response.data.message
+              ? error.response.data.message
+              : `Error Occured while logging in.`
+          );
+          setOpenError(true);
+        }
+      },
+    });
   };
 
   const steps = [
@@ -533,8 +553,8 @@ const Register: React.FC = () => {
                             {index === steps.length - 1 ? (
                               <RoundedButton
                                 title1="Register"
-                                loading={isLoading}
-                                disable1={isLoading}
+                                loading={isPending}
+                                disable1={isPending}
                                 onClick1={handleSubmit(handleRegister)}
                               />
                             ) : (
