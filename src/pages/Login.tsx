@@ -19,6 +19,7 @@ import RoundedButton from "../components/Button/Button";
 import SuccessBar from "../components/Snackbar/SuccessBar";
 import ErrorBar from "../components/Snackbar/ErrorBar";
 import { Link, useNavigate } from "react-router-dom";
+import { useLoginMutation } from "../services/LoginServices";
 // import { useLoginMutation } from "services/Auth/AuthServices";
 
 export interface LoginData {
@@ -48,30 +49,31 @@ const Login: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  //   const { mutate: AuthMutation, isPending } = useLoginMutation();
+  const { mutate: AuthMutation, isPending } = useLoginMutation();
 
   const handleLogin = async (data: LoginData) => {
-    //     const payload = {
-    //       username: data?.username,
-    //       password: btoa(data?.password),
-    //     };
-    //     AuthMutation(payload, {
-    //       onSuccess: () => {
-    //         setSuccessMessage("Login Successful!");
-    //         setOpenError(false);
-    //         setOpenSuccess(true);
-    //       },
-    //       onError: (error) => {
-    //         if (isAxiosError(error) && error.response) {
-    //           setErrorMessage(
-    //             error.response.data.responseData
-    //               ? error.response.data.responseData.detail
-    //               : `Error Occured while logging in.`
-    //           );
-    //           setOpenError(true);
-    //         }
-    //       },
-    //     });
+    const payload = {
+      username: data?.username,
+      // password: btoa(data?.password),
+      password: data?.password,
+    };
+    AuthMutation(payload, {
+      onSuccess: () => {
+        setSuccessMessage("Login Successful!");
+        setOpenError(false);
+        setOpenSuccess(true);
+      },
+      onError: (error) => {
+        if (isAxiosError(error) && error.response) {
+          setErrorMessage(
+            error.response.data.message
+              ? error.response.data.message
+              : `Error Occured while logging in.`
+          );
+          setOpenError(true);
+        }
+      },
+    });
   };
 
   const handleOnClick = (e: React.MouseEvent) => {
