@@ -102,6 +102,7 @@ const NavBar: React.FC<NavBarProps> = ({
   };
 
   const handleLogout = () => {
+    localStorage.clear();
     navigate("/");
     handleProfileClose();
   };
