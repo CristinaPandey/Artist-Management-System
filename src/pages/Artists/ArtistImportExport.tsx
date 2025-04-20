@@ -125,70 +125,7 @@ const ArtistImportExport: React.FC<ArtistImportExportProps> = ({
     }
   };
 
-  const handleExport = async () => {
-    try {
-      setProgress(0);
-      // Simulate export process
-      for (let i = 0; i <= 100; i += 20) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        setProgress(i);
-      }
-
-      // Mock data
-      const mockArtists: Artist[] = [
-        {
-          id: 1,
-          name: "John Doe",
-          genre: "Rock",
-          //   country: "USA",
-          //   formationYear: 2010,
-          createdAt: "2023-01-01T00:00:00Z",
-          updatedAt: "2023-01-01T00:00:00Z",
-        },
-        {
-          id: 2,
-          name: "Jane Smith",
-          genre: "Pop",
-          //   country: "UK",
-          //   formationYear: 2015,
-          createdAt: "2023-01-02T00:00:00Z",
-          updatedAt: "2023-01-02T00:00:00Z",
-        },
-      ];
-
-      // Convert to CSV
-      const headers = ["id", "name", "genre", "country", "formationYear"];
-      const csvContent = [
-        headers.join(","),
-        ...mockArtists.map((artist) =>
-          [
-            artist.id,
-            artist.name,
-            artist.genre,
-            // artist.country,
-            // artist.formationYear,
-          ].join(",")
-        ),
-      ].join("\n");
-
-      // Create and download file
-      const blob = new Blob([csvContent], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "artists.csv";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      setSuccess("Artists exported successfully");
-    } catch (error) {
-      setError("Failed to export artists");
-    } finally {
-      setProgress(0);
-    }
-  };
+  const handleExport = async () => {};
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>

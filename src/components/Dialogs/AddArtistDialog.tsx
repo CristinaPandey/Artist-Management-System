@@ -35,16 +35,16 @@ const AddArtistDialog: React.FC<AddArtistDialogProps> = ({
   //   );
 
   const handleSave = () => {
-    const updatedArtist: Artist = {
-      id: artist?.id || 0, // Will be overwritten if new artist
-      name,
-      genre,
-      //   country,
-      //   formationYear: Number(formationYear),
-      createdAt: artist?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    onSave(updatedArtist);
+    // const updatedArtist: Artist = {
+    //   id: artist?.id || 0, // Will be overwritten if new artist
+    //   name,
+    //   genre,
+    //   //   country,
+    //   //   formationYear: Number(formationYear),
+    //   createdAt: artist?.createdAt || new Date().toISOString(),
+    //   updatedAt: new Date().toISOString(),
+    // };
+    // onSave(updatedArtist);
   };
 
   return (

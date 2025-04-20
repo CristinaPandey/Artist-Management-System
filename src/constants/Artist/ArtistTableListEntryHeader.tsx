@@ -11,12 +11,12 @@ import { Artist } from "../../types/artist";
 
 export const ArtistTableListEntryHeader: ColumnDef<Artist>[] = [
   {
-    header: "SN",
-    accessorKey: "sn",
+    header: " ID",
+    accessorKey: "id",
     cell: (data) => {
       return (
         <Typography sx={{ fontSize: "14px", fontWeight: 400 }}>
-          {data?.row?.index + 1}
+          {data?.row?.id}
         </Typography>
       );
     },
@@ -48,8 +48,8 @@ export const ArtistTableListEntryHeader: ColumnDef<Artist>[] = [
     },
   },
   {
-    header: "Created Date",
-    accessorKey: "createdAt",
+    header: "Formed Year",
+    accessorKey: "formed_year",
     cell: (data) => {
       return (
         <Typography
@@ -57,10 +57,26 @@ export const ArtistTableListEntryHeader: ColumnDef<Artist>[] = [
             fontSize: "14px",
             fontWeight: 400,
             textAlign: "left",
-            textTransform: "capitalize",
           }}
         >
-          {data?.row?.original?.createdAt.split("T")[0]}
+          {data?.row?.original?.formed_year}
+        </Typography>
+      );
+    },
+  },
+  {
+    header: "Biography",
+    accessorKey: "biography",
+    cell: (data) => {
+      return (
+        <Typography
+          sx={{
+            fontSize: "14px",
+            fontWeight: 400,
+            textAlign: "left",
+          }}
+        >
+          {data?.row?.original?.biography}
         </Typography>
       );
     },

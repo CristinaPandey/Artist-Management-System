@@ -37,7 +37,7 @@ const getAllUserList = async () => {
   const response = await axiosInstance.get(`/api/artists`);
   return response.data;
 };
-export const useGetAllUserList = () => {
+export const useGetAllArtistList = () => {
   return useQuery({
     queryKey: ["addArtist"],
     queryFn: () => getAllUserList(),

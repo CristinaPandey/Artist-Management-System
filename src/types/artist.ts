@@ -3,8 +3,10 @@ export interface Artist {
   id: number;
   name: string;
   genre: string;
-  createdAt: string;
+  formed_year: string;
   updatedAt: string;
+  createdAt: string;
+  biography: string;
 }
 
 export interface ArtistFormData {
