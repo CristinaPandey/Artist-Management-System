@@ -20,5 +20,11 @@ export interface RegisterData {
   email: string;
   password: string;
   confirmPassword: string;
-  role?: UserRole;
+  first_name: string;
+  last_name: string;
+  gender: string;
+  address: string;
+  phone_number: string;
+  date_of_birth: string | Date | null;
+  role: UserRole;
 }

@@ -194,8 +194,8 @@ const Login: React.FC = () => {
               <Box sx={{ display: "flex", justifyContent: "center" }}>
                 <RoundedButton
                   title1="Login"
-                  //   loading={isPending}
-                  //   disable1={isPending}
+                  loading={isPending}
+                  disable1={isPending}
                 />
               </Box>
             </Box>

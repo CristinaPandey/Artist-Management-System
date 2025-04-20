@@ -41,8 +41,10 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import RoundedButton from "../components/Button/Button";
 import SuccessBar from "../components/Snackbar/SuccessBar";
 import ErrorBar from "../components/Snackbar/ErrorBar";
-import { RegisterData } from "../types/user";
+import { RegisterData, UserRole } from "../types/user";
 import { ROLES } from "../constants/roles";
+import { useRegisterMutation } from "../services/RegisterServices";
+import { isAxiosError } from "axios";
 
 // Extended schema with new fields
 const schema = yup.object({
@@ -73,6 +75,10 @@ const schema = yup.object({
     .max(new Date(), "Date of birth cannot be in the future")
     .required("Date of birth is required")
     .nullable(),
+  role: yup
+    .mixed<UserRole>()
+    .oneOf(Object.values(ROLES))
+    .required("Role is required"),
 });
 
 // Extended RegisterData type (should be updated in your types/user.ts file)
@@ -99,6 +105,16 @@ const Register: React.FC = () => {
     resolver: yupResolver(schema),
     mode: "onChange",
     defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      first_name: "",
+      last_name: "",
+      gender: "",
+      address: "",
+      phone_number: "",
+      role: ROLES.ARTIST_MANAGER,
       date_of_birth: null,
     },
   });
@@ -113,9 +129,11 @@ const Register: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeStep, setActiveStep] = useState(0);
 
+  const { mutate: AuthMutation, isPending } = useRegisterMutation();
+
   const handleNext = async () => {
     const fields = [
-      ["username", "email", "password", "confirmPassword"],
+      ["username", "email", "role", "password", "confirmPassword"],
       ["first_name", "last_name", "gender"],
       ["address", "phone_number", "date_of_birth"],
     ];
@@ -135,30 +153,36 @@ const Register: React.FC = () => {
 
     // Set default role for new registration
     const payload = {
-      ...data,
-      role: ROLES.ARTIST_MANAGER,
+      username: data?.username,
+      email: data?.email,
+      password: data?.password,
+      first_name: data?.first_name,
+      last_name: data.last_name,
+      gender: data?.gender,
+      address: data?.address,
+      phone_number: data?.phone_number,
+      // date_of_birth: data?.date_of_birth,
+      date_of_birth: data?.date_of_birth || new Date(),
+      role: data.role || ROLES.ARTIST_MANAGER,
     };
 
-    try {
-      // Mock API call - replace with actual API call
-      console.log("Registration payload:", payload);
-
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setSuccessMessage("Registration successful! Please login.");
-      setOpenSuccess(true);
-
-      // Redirect to login after a short delay
-      setTimeout(() => {
-        navigate("/");
-      }, 3000);
-    } catch (error) {
-      setErrorMessage("Error occurred during registration.");
-      setOpenError(true);
-    } finally {
-      setIsLoading(false);
-    }
+    AuthMutation(payload, {
+      onSuccess: () => {
+        setSuccessMessage("Signup Successful!");
+        setOpenError(false);
+        setOpenSuccess(true);
+      },
+      onError: (error) => {
+        if (isAxiosError(error) && error.response) {
+          setErrorMessage(
+            error.response.data.message
+              ? error.response.data.message
+              : `Error Occured while logging in.`
+          );
+          setOpenError(true);
+        }
+      },
+    });
   };
 
   const steps = [
@@ -213,6 +237,30 @@ const Register: React.FC = () => {
                 error={!!errors.email}
                 helperText={errors.email?.message}
               />
+            )}
+          />
+
+          <Controller
+            name="role"
+            control={control}
+            defaultValue={ROLES.ARTIST_MANAGER}
+            render={({ field }) => (
+              <FormControl fullWidth size="small" error={!!errors.role}>
+                <InputLabel id="role-label">Role</InputLabel>
+                <Select
+                  {...field}
+                  labelId="role-label"
+                  label="role"
+                  value={field.value || ROLES.ARTIST_MANAGER}
+                >
+                  <MenuItem value="super_admin">Super Admin</MenuItem>
+                  <MenuItem value="artist_manager">Artist Manager</MenuItem>
+                  <MenuItem value="artist">Artist</MenuItem>
+                </Select>
+                {errors.role && (
+                  <FormHelperText>{errors.role.message}</FormHelperText>
+                )}
+              </FormControl>
             )}
           />
 
@@ -533,8 +581,8 @@ const Register: React.FC = () => {
                             {index === steps.length - 1 ? (
                               <RoundedButton
                                 title1="Register"
-                                loading={isLoading}
-                                disable1={isLoading}
+                                loading={isPending}
+                                disable1={isPending}
                                 onClick1={handleSubmit(handleRegister)}
                               />
                             ) : (
