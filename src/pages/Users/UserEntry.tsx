@@ -116,7 +116,6 @@ export default function UserEntry({ open, onClose }: UserEntryProps) {
       date_of_birth: null,
     },
   });
-  const [successClose, setSuccessClose] = useState<boolean>(false);
 
   const [errorMsgs, setErrorMsgs] = useState<string>("");
   const [successMsgs, setSuccessMsgs] = useState<string>("");
@@ -146,7 +145,6 @@ export default function UserEntry({ open, onClose }: UserEntryProps) {
         setSuccessMsgs("User created Successful!");
         setSnackbarErrorOpen(false);
         setSnackbarSuccessOpen(true);
-        setSuccessClose(false);
       },
       onError: (error) => {
         if (isAxiosError(error) && error.response) {
@@ -470,6 +468,7 @@ export default function UserEntry({ open, onClose }: UserEntryProps) {
                 render={({ field }) => (
                   <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <DatePicker
+                      disableFuture
                       label="Date of Birth"
                       value={field.value}
                       onChange={(newValue: any) => field.onChange(newValue)}
