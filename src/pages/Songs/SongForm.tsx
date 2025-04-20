@@ -22,20 +22,24 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
+import { isAxiosError } from "axios";
+import { useAddArtistSongMutation } from "../../services/Songs/SongServices";
 
 const schema = yup
   .object()
   .shape({
     title: yup.string().required().label("Title"),
     release_date: yup.string().required().label("Release Date"),
-    genre: yup.string().required().label("Genre"),
+    album: yup.string().required().label("Album"),
+    duration: yup.number().required().label("Duration"),
   })
   .required();
 
 interface SongEntryInput {
   title: string;
-  genre: string;
+  album: string;
   release_date: string;
+  duration: number;
 }
 
 interface SongEntryProps {
@@ -76,25 +80,37 @@ const SongEntry: React.FC<SongEntryProps> = ({ open, onClose }) => {
     resolver: yupResolver(schema),
     defaultValues: {
       title: "",
-      genre: "",
+      album: "",
       release_date: "",
     },
   });
 
-  const handleSongSubmit = async (data: SongEntryInput) => {
-    try {
-      console.log("Form data:", data);
+  const { mutate: AuthMutation, isPending } = useAddArtistSongMutation();
 
-      // On success
-      setSuccessMsgs("User added successfully!");
-      setSnackbarSuccessOpen(true);
-      reset();
-      onClose();
-    } catch (error) {
-      // On error
-      setErrorMsgs("Failed to add user. Please try again.");
-      setSnackbarErrorOpen(true);
-    }
+  const handleSongSubmit = async (data: SongEntryInput) => {
+    const payload = {
+      title: data?.title,
+      album: data?.album,
+      release_date: data?.release_date,
+      duration: data?.duration,
+    };
+    AuthMutation(payload, {
+      onSuccess: () => {
+        setSuccessMsgs("Song added Successful!");
+        setSnackbarErrorOpen(false);
+        setSnackbarSuccessOpen(true);
+      },
+      onError: (error: any) => {
+        if (isAxiosError(error) && error.response) {
+          setErrorMsgs(
+            error.response.data.message
+              ? error.response.data.message
+              : `Error Occured while adding song.`
+          );
+          setSnackbarErrorOpen(true);
+        }
+      },
+    });
   };
 
   return (
@@ -177,9 +193,9 @@ const SongEntry: React.FC<SongEntryProps> = ({ open, onClose }) => {
                   />
                 </Box>
                 <Box>
-                  <InputLabel sx={{ fontWeight: 600 }}>Genre</InputLabel>
+                  <InputLabel sx={{ fontWeight: 600 }}>Album</InputLabel>
                   <Controller
-                    name="genre"
+                    name="album"
                     control={control}
                     render={({ field }) => (
                       <TextField
@@ -188,46 +204,70 @@ const SongEntry: React.FC<SongEntryProps> = ({ open, onClose }) => {
                         fullWidth
                         size="small"
                         placeholder="Please Enter Genre"
-                        error={Boolean(errors.genre)}
-                        helperText={errors.genre && errors.genre.message}
+                        error={Boolean(errors.album)}
+                        helperText={errors.album && errors.album.message}
                       />
                     )}
                   />
                 </Box>
               </Box>
 
-              <Box>
-                <Typography sx={{ fontWeight: 600, mb: 1 }}>
-                  Release Date
-                </Typography>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <Box sx={{ width: "50%" }}>
-                    <Controller
-                      name="release_date"
-                      control={control}
-                      render={({ field }) => (
-                        <DatePicker
-                          maxDate={dayjs()}
-                          {...field}
-                          sx={{
-                            width: "100%",
-                            "& .MuiSvgIcon-root": {
-                              width: "16px",
-                              height: "16px",
-                            },
-                          }}
-                          slotProps={{ textField: { size: "small" } }}
-                          value={field.value ? dayjs(field.value) : null}
-                          onChange={(date) =>
-                            field.onChange(
-                              date ? dayjs(date).format("YYYY-MM-DD") : null
-                            )
-                          }
-                        />
-                      )}
-                    />
-                  </Box>
-                </LocalizationProvider>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 2,
+                }}
+              >
+                <Box>
+                  <InputLabel sx={{ fontWeight: 600 }}>Release Date</InputLabel>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <Box sx={{ width: "50%" }}>
+                      <Controller
+                        name="release_date"
+                        control={control}
+                        render={({ field }) => (
+                          <DatePicker
+                            maxDate={dayjs()}
+                            {...field}
+                            sx={{
+                              width: "300px",
+                              "& .MuiSvgIcon-root": {
+                                width: "16px",
+                                height: "16px",
+                              },
+                            }}
+                            slotProps={{ textField: { size: "small" } }}
+                            value={field.value ? dayjs(field.value) : null}
+                            onChange={(date) =>
+                              field.onChange(
+                                date ? dayjs(date).format("YYYY-MM-DD") : null
+                              )
+                            }
+                          />
+                        )}
+                      />
+                    </Box>
+                  </LocalizationProvider>
+                </Box>
+                <Box>
+                  <InputLabel sx={{ fontWeight: 600 }}>Duration</InputLabel>
+                  <Controller
+                    name="duration"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        sx={{ width: "300px" }}
+                        {...field}
+                        fullWidth
+                        size="small"
+                        placeholder="Please Enter Duration"
+                        error={Boolean(errors.duration)}
+                        helperText={errors.duration && errors.duration.message}
+                      />
+                    )}
+                  />
+                </Box>
               </Box>
             </Box>
 
@@ -240,7 +280,7 @@ const SongEntry: React.FC<SongEntryProps> = ({ open, onClose }) => {
               }}
             >
               <RoundedButton
-                title1="Complete User Entry"
+                title1="Add Song"
                 onClick1={handleSubmit(handleSongSubmit)}
                 // loading={isPending}
               />

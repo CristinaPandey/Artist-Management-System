@@ -11,12 +11,12 @@ import { Song } from "../../pages/Songs/SongsList";
 
 export const SongsTableListEntryHeader: ColumnDef<Song>[] = [
   {
-    header: "SN",
-    accessorKey: "sn",
+    header: "ID",
+    accessorKey: "id",
     cell: (data) => {
       return (
         <Typography sx={{ fontSize: "14px", fontWeight: 400 }}>
-          {data?.row?.index + 1}
+          {data?.row?.original?.id}
         </Typography>
       );
     },
@@ -35,14 +35,14 @@ export const SongsTableListEntryHeader: ColumnDef<Song>[] = [
     },
   },
   {
-    header: "Genre",
-    accessorKey: "genre",
+    header: "Album",
+    accessorKey: "album",
     cell: (data) => {
       return (
         <Typography
           sx={{ fontSize: "14px", fontWeight: 400, textAlign: "left" }}
         >
-          {data?.row?.original?.genre}
+          {data?.row?.original?.album}
         </Typography>
       );
     },
@@ -60,7 +60,20 @@ export const SongsTableListEntryHeader: ColumnDef<Song>[] = [
             textTransform: "capitalize",
           }}
         >
-          {data?.row?.original?.release_date}
+          {data?.row?.original?.release_date?.split("T")[0]}
+        </Typography>
+      );
+    },
+  },
+  {
+    header: "Duration",
+    accessorKey: "duration",
+    cell: (data) => {
+      return (
+        <Typography
+          sx={{ fontSize: "14px", fontWeight: 400, textAlign: "left" }}
+        >
+          {data?.row?.original?.duration}
         </Typography>
       );
     },

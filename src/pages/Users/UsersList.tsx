@@ -91,7 +91,6 @@ const UsersList: React.FC = () => {
   });
 
   const { data: userList, isLoading } = useGetAllUserList();
-  console.log(userList);
 
   // Mock function to fetch users
 
