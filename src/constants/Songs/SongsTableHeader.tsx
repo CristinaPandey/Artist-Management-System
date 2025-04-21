@@ -8,6 +8,8 @@ import SuccessBar from "../../components/Snackbar/SuccessBar";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditStockModal from "../../pages/Users/EditModal";
 import { Song } from "../../pages/Songs/SongsList";
+import { useDeleteArtistSong } from "../../services/Songs/SongServices";
+import { isAxiosError } from "axios";
 
 export const SongsTableListEntryHeader: ColumnDef<Song>[] = [
   {
@@ -147,16 +149,36 @@ const ActionCell = ({ data }: { data: any }) => {
   const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
   const [errorBarOpen, setErrorBarOpen] = useState<boolean>(false);
   const [successBarOpen, setSuccessBarOpen] = useState<boolean>(false);
+  const [errorMsgs, setErrorMsgs] = useState<string>("");
 
-  // const { mutate: deleteStockSetup } = useDeleteStockDetails(
-  //   data?.row?.original?.id
-  // );
+  const { mutate: deleteArtistSong } = useDeleteArtistSong(
+    data?.row?.original?.id
+  );
 
   const handleDelete = () => {
     setConfirmOpen(true);
   };
 
-  const handleConfirmDelete = () => {};
+  const handleConfirmDelete = () => {
+    const deleteId = data.row.original.id;
+    deleteArtistSong(deleteId, {
+      onSuccess: () => {
+        setConfirmOpen(false);
+        setSuccessBarOpen(true);
+        setSuccessMsgs("Song deleted Successful!");
+      },
+      onError: (error) => {
+        if (isAxiosError(error) && error.response) {
+          setErrorMsgs(
+            error.response.data.message
+              ? error.response.data.message
+              : `Error Occured while deleting song.`
+          );
+          setErrorBarOpen(true);
+        }
+      },
+    });
+  };
 
   const handleConfirmClose = () => {
     setConfirmOpen(false);
@@ -173,7 +195,7 @@ const ActionCell = ({ data }: { data: any }) => {
         <ErrorBar
           snackbarOpen={errorBarOpen}
           setSnackbarOpen={setErrorBarOpen}
-          message="Failed to delete"
+          message={errorMsgs}
         />
 
         <Modal open={confirmOpen} onClose={handleConfirmClose}>

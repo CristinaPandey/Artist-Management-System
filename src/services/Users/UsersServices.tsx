@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosInstance } from "../../config/axiosInstance";
 
 type UserData = {
@@ -47,5 +47,20 @@ export const useGetAllUserList = () => {
     queryKey: ["addUser"],
     queryFn: () => getAllUserList(),
     // retry: false,
+  });
+};
+
+export const useDeleteUser = (id_no: number) => {
+  const queryClient = useQueryClient();
+  const UserDelete = async (id: number) => {
+    const response = await axiosInstance.delete(`/api/users/${id}`);
+    return response.data;
+  };
+  return useMutation({
+    mutationFn: () => UserDelete(id_no),
+    mutationKey: ["UserDelete", id_no],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["addUser"] });
+    },
   });
 };

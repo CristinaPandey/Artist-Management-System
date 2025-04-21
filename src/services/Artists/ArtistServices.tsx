@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosInstance } from "../../config/axiosInstance";
 
 export type ArtistData = {
@@ -42,5 +42,20 @@ export const useGetAllArtistList = () => {
     queryKey: ["addArtist"],
     queryFn: () => getAllUserList(),
     // retry: false,
+  });
+};
+
+export const useDeleteArtist = (id_no: number) => {
+  const queryClient = useQueryClient();
+  const ArtristDelete = async (id: number) => {
+    const response = await axiosInstance.delete(`/api/artists/${id}`);
+    return response.data;
+  };
+  return useMutation({
+    mutationFn: () => ArtristDelete(id_no),
+    mutationKey: ["ArtistDelete", id_no],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["addArtist"] });
+    },
   });
 };
