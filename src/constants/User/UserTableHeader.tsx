@@ -18,7 +18,6 @@ import { Edit } from "@mui/icons-material";
 import ErrorBar from "../../components/Snackbar/ErrorBar";
 import SuccessBar from "../../components/Snackbar/SuccessBar";
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditStockModal from "../../pages/Users/EditModal";
 import {
   useDeleteUser,
   useUpdateUser,

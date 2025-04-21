@@ -9,9 +9,6 @@ import {
   CircularProgress,
   Paper,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import AddSongDialog from "../../components/Dialogs/AddSongDialog";
 import CustomTable from "../../components/Table/CustomTable";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";

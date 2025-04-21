@@ -183,13 +183,14 @@ const UsersList: React.FC = () => {
       ) : (
         <>
           {userList?.users.length === 0 ? (
-            <Paper sx={{ p: 4, textAlign: "center" }}>
-              <Typography>No songs found for this artist.</Typography>
-            </Paper>
+            <CustomTable
+              columns={UserTableListEntryHeader}
+              data={userList || []}
+            />
           ) : (
             <CustomTable
               columns={UserTableListEntryHeader}
-              data={userList.users || []}
+              data={userList?.users || []}
               pagination={pagination}
               setPagination={setPagination}
               next={next}

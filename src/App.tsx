@@ -7,11 +7,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // import MainRoutes from "./routes/MainRoutes";
 
-// import GlobalError from "components/GlobalError/GlobalError.tsx";
-// import { ErrorProvider } from "./context/ErrorContextProvider.tsx";
 import { NewTheme, themeSettings } from "./theme";
 import MainRoutes from "./routes/MainRoutes";
 import { AuthProvider } from "./store/authContext";
+import { ErrorProvider } from "./components/context/ErrorContextProvider";
+import GlobalError from "./components/GlobalError/GlobarError";
 
 function App() {
   const customTheme = deepmerge(themeSettings(), NewTheme);
@@ -26,32 +26,32 @@ function App() {
   });
 
   return (
-    // <ErrorProvider>
-    <Box>
-      <BrowserRouter>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <ThemeProvider theme={theme}>
-              <CssBaseline />
-              <GlobalStyles
-                styles={{
-                  "@global": {
-                    "html, body, #root": {
-                      height: "100%",
-                      width: "100%",
+    <ErrorProvider>
+      <Box>
+        <BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <GlobalStyles
+                  styles={{
+                    "@global": {
+                      "html, body, #root": {
+                        height: "100%",
+                        width: "100%",
+                      },
                     },
-                  },
-                }}
-              />
+                  }}
+                />
 
-              <MainRoutes />
-              {/* <GlobalError /> */}
-            </ThemeProvider>
-          </AuthProvider>
-        </QueryClientProvider>
-      </BrowserRouter>
-    </Box>
-    // </ErrorProvider>
+                <MainRoutes />
+                <GlobalError />
+              </ThemeProvider>
+            </AuthProvider>
+          </QueryClientProvider>
+        </BrowserRouter>
+      </Box>
+    </ErrorProvider>
   );
 }
 
