@@ -14,6 +14,19 @@ type UserData = {
   role?: string;
 };
 
+type CreateUserData = {
+  username: string;
+  password: string;
+  email: string;
+  role?: string;
+  first_name?: string;
+  last_name?: string;
+  gender?: string;
+  address?: string;
+  phone_number?: string;
+  date_of_birth?: Date;
+};
+
 type UserResponse = {
   message: string;
   user: {
@@ -47,6 +60,27 @@ export const useGetAllUserList = () => {
     queryKey: ["addUser"],
     queryFn: () => getAllUserList(),
     // retry: false,
+  });
+};
+
+const updateUser = async (
+  userId: number,
+  data: Partial<UserData>
+): Promise<UserResponse> => {
+  const response = await axiosInstance.put(`/api/users/${userId}`, data);
+  return response.data;
+};
+
+export const useUpdateUser = (userId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Partial<UserData>) => updateUser(userId, data),
+    mutationKey: ["updateUser", userId],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["addUser"] });
+    },
+    retry: false,
   });
 };
 
