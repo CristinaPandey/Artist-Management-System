@@ -86,3 +86,28 @@ export const useDeleteArtistSong = (id_no: number) => {
     },
   });
 };
+
+const updateArtistSong = async (
+  id: number,
+  data: Partial<SongData>
+): Promise<UserResponse> => {
+  const userId = localStorage.getItem("user_id");
+  const response = await axiosInstance.put(
+    `/api/artists/${userId}/songs/${id}`,
+    data
+  );
+  return response.data;
+};
+
+export const useUpdateArtistSong = (id: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Partial<SongData>) => updateArtistSong(id, data),
+    mutationKey: ["updateArtistSong", id],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["addArtistSongs"] });
+    },
+    retry: false,
+  });
+};

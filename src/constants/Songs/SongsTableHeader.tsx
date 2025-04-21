@@ -1,15 +1,37 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { User } from "../../types";
-import { Box, Button, Modal, Typography, useTheme } from "@mui/material";
-import { useState } from "react";
+import {
+  Box,
+  Button,
+  IconButton,
+  InputLabel,
+  Modal,
+  Select,
+  styled,
+  TextField,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { useEffect, useState } from "react";
 import { Edit } from "@mui/icons-material";
 import ErrorBar from "../../components/Snackbar/ErrorBar";
 import SuccessBar from "../../components/Snackbar/SuccessBar";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditStockModal from "../../pages/Users/EditModal";
 import { Song } from "../../pages/Songs/SongsList";
-import { useDeleteArtistSong } from "../../services/Songs/SongServices";
+import {
+  useDeleteArtistSong,
+  useUpdateArtistSong,
+} from "../../services/Songs/SongServices";
 import { isAxiosError } from "axios";
+import * as yup from "yup";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import RoundedButton from "../../components/Button/Button";
+import CloseIcon from "@mui/icons-material/Close";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import dayjs, { Dayjs } from "dayjs";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 export const SongsTableListEntryHeader: ColumnDef<Song>[] = [
   {
@@ -84,64 +106,298 @@ export const SongsTableListEntryHeader: ColumnDef<Song>[] = [
   {
     header: "Actions",
     accessorKey: "actions",
-    cell: (data) => {
-      //   const theme = useTheme();
-      //   const [editOpen, setEditOpen] = useState<boolean>(false);
+    cell: ({ row }) => <ActionsCellEdit row={row} />,
+  },
+  //   const theme = useTheme();
+  //   const [editOpen, setEditOpen] = useState<boolean>(false);
+];
 
-      const handleEdit = () => {
-        // setEditOpen(true);
-      };
+const ActionsCellEdit = ({ row }: { row: any }) => {
+  const theme = useTheme();
+  const [editOpen, setEditOpen] = useState<boolean>(false);
+  const [errorMsgs, setErrorMsgs] = useState<string>("");
+  const [successMsgs, setSuccessMsgs] = useState<string>("");
+  const [showMessage, setShowMessage] = useState<boolean>(false);
+  const [snackbarErrorOpen, setSnackbarErrorOpen] = useState<boolean>(false);
+  const [snackbarSuccessOpen, setSnackbarSuccessOpen] =
+    useState<boolean>(false);
+  const { mutate: updateArtistSong } = useUpdateArtistSong(row.original.id);
 
-      const handleSave = (updatedData: User) => {};
+  const schema = yup
+    .object()
+    .shape({
+      title: yup.string().required().label("Title"),
+      release_date: yup.string().required().label("Release Date"),
+      album: yup.string().required().label("Album"),
+      duration: yup.number().required().label("Duration"),
+    })
+    .required();
 
-      return (
-        <>
-          <Box sx={{ display: "flex", justifyContent: "center" }}>
-            {/* <EditStockModal
-              open={editOpen}
-              setOpen={setEditOpen}
-              data={data.row.original}
-              onSave={handleSave}
-            /> */}
+  const ModalContent = styled(Box)(({ theme }) => ({
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "auto",
+    maxWidth: "800px",
+    minWidth: "650px",
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: "0px 4px 24px rgba(0, 0, 0, 0.1)",
+    padding: theme.spacing(4),
+    borderRadius: "8px",
+    outline: "none",
+  }));
 
-            <Box sx={{ display: "flex", flexDirection: "row" }}>
-              <Box
-                onClick={handleEdit}
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<Song>({
+    // resolver: yupResolver(schema),
+    defaultValues: {
+      title: row.original.title,
+      album: row.original.album,
+      release_date: row.original.release_date,
+      duration: row.original.duration,
+    },
+  });
+
+  useEffect(() => {
+    if (editOpen) {
+      reset({
+        title: row.original.title,
+        album: row.original.album,
+        release_date: row.original.release_date,
+        duration: row.original.duration,
+      });
+    }
+  }, [editOpen, reset, row.original]);
+
+  const handleEdit = () => setEditOpen(true);
+  const handleClose = () => setEditOpen(false);
+
+  const onUpdateSave = (formData: Song) => {
+    const payload = {
+      title: formData?.title,
+      album: formData?.album,
+      // release_date: formData?.release_date,
+      release_date: formData?.release_date
+        ? new Date(formData.release_date).toISOString().split("T")[0] // formats to 'YYYY-MM-DD'
+        : undefined,
+      duration: formData?.duration,
+    };
+
+    updateArtistSong(payload, {
+      onSuccess: () => {
+        setSuccessMsgs("User updated successfully!");
+        setSnackbarSuccessOpen(true);
+        setSnackbarErrorOpen(false);
+        setEditOpen(false);
+      },
+      onError: (error) => {
+        if (isAxiosError(error) && error.response) {
+          setErrorMsgs(
+            error.response.data.message || "Error occurred while updating user."
+          );
+          setSnackbarErrorOpen(true);
+        }
+      },
+    });
+  };
+
+  return (
+    <>
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Modal open={editOpen} onClose={handleClose}>
+          <ModalContent>
+            <Box display="flex" justifyContent="space-between" mb={2}>
+              <Typography
                 sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 0.2,
-                  "&:hover": {
-                    cursor: "pointer",
-                  },
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  lineHeight: "19px",
+                  color: "#212121",
+                  borderBottom: `1px solid ${theme.palette.secondary.main}`,
                 }}
               >
-                <Edit
-                  sx={{
-                    fontSize: "16px",
-                    // color: theme.palette.grey[900],
-                    // "&:hover": {
-                    //   color: theme.palette.grey[900],
-                    // },
-                  }}
-                />
-                <Typography
-                  fontSize="13px"
-                  fontWeight={600}
-                  sx={{ userSelect: "none" }}
-                >
-                  Edit
-                </Typography>
-              </Box>
-              <ActionCell data={data} />
+                Edit User
+              </Typography>
+              <IconButton onClick={handleClose}>
+                <CloseIcon />
+              </IconButton>
             </Box>
+            <Box
+              component="form"
+              onSubmit={handleSubmit(onUpdateSave)}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 0,
+                width: "100%",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                  width: "100%",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: 2,
+                  }}
+                >
+                  <Box>
+                    <InputLabel sx={{ fontWeight: 600 }}>Title</InputLabel>
+                    <Controller
+                      name="title"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          sx={{ width: "300px" }}
+                          {...field}
+                          fullWidth
+                          size="small"
+                          placeholder="Please Enter Title"
+                          error={Boolean(errors.title)}
+                          helperText={errors.title && errors.title.message}
+                        />
+                      )}
+                    />
+                  </Box>
+                  <Box>
+                    <InputLabel sx={{ fontWeight: 600 }}>Album</InputLabel>
+                    <Controller
+                      name="album"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          sx={{ width: "300px" }}
+                          {...field}
+                          fullWidth
+                          size="small"
+                          placeholder="Please Enter Genre"
+                          error={Boolean(errors.album)}
+                          helperText={errors.album && errors.album.message}
+                        />
+                      )}
+                    />
+                  </Box>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: 2,
+                  }}
+                >
+                  <Box>
+                    <InputLabel sx={{ fontWeight: 600 }}>
+                      Release Date
+                    </InputLabel>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <Box sx={{ width: "50%" }}>
+                        <Controller
+                          name="release_date"
+                          control={control}
+                          render={({ field }) => (
+                            <DatePicker
+                              maxDate={dayjs()}
+                              {...field}
+                              sx={{
+                                width: "300px",
+                                "& .MuiSvgIcon-root": {
+                                  width: "16px",
+                                  height: "16px",
+                                },
+                              }}
+                              slotProps={{ textField: { size: "small" } }}
+                              value={field.value ? dayjs(field.value) : null}
+                              onChange={(date) =>
+                                field.onChange(
+                                  date ? dayjs(date).format("YYYY-MM-DD") : null
+                                )
+                              }
+                            />
+                          )}
+                        />
+                      </Box>
+                    </LocalizationProvider>
+                  </Box>
+                  <Box>
+                    <InputLabel sx={{ fontWeight: 600 }}>Duration</InputLabel>
+                    <Controller
+                      name="duration"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          sx={{ width: "300px" }}
+                          {...field}
+                          fullWidth
+                          size="small"
+                          placeholder="Please Enter Duration"
+                          error={Boolean(errors.duration)}
+                          helperText={
+                            errors.duration && errors.duration.message
+                          }
+                        />
+                      )}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                  marginTop: "20px",
+                }}
+              >
+                <RoundedButton
+                  title1="Add Song"
+                  // loading={isPending}
+                />
+              </Box>
+            </Box>
+          </ModalContent>
+        </Modal>
+
+        <Box sx={{ display: "flex", flexDirection: "row" }}>
+          <Box
+            onClick={handleEdit}
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 0.2,
+              "&:hover": {
+                cursor: "pointer",
+              },
+            }}
+          >
+            <Edit sx={{ fontSize: "16px" }} />
+            <Typography
+              fontSize="13px"
+              fontWeight={600}
+              sx={{ userSelect: "none" }}
+            >
+              Edit
+            </Typography>
           </Box>
-        </>
-      );
-    },
-  },
-];
+          <ActionCell data={{ row }} />
+        </Box>
+      </Box>
+    </>
+  );
+};
 
 const ActionCell = ({ data }: { data: any }) => {
   const theme = useTheme();

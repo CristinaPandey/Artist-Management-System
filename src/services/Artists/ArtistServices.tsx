@@ -45,6 +45,42 @@ export const useGetAllArtistList = () => {
   });
 };
 
+export const usePutArtist = (id_no: number) => {
+  const queryClient = useQueryClient();
+  const ArtristPut = async (id: number) => {
+    const response = await axiosInstance.put(`/api/artists/${id}`);
+    return response.data;
+  };
+  return useMutation({
+    mutationFn: () => ArtristPut(id_no),
+    mutationKey: ["ArtistDeArtristPutlete", id_no],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["addArtist"] });
+    },
+  });
+};
+
+const updateArtist = async (
+  userId: number,
+  data: Partial<ArtistData>
+): Promise<UserResponse> => {
+  const response = await axiosInstance.put(`/api/artists/${userId}`, data);
+  return response.data;
+};
+
+export const useUpdateArtist = (userId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Partial<ArtistData>) => updateArtist(userId, data),
+    mutationKey: ["ArtistDeArtristPutlete", userId],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["addArtist"] });
+    },
+    retry: false,
+  });
+};
+
 export const useDeleteArtist = (id_no: number) => {
   const queryClient = useQueryClient();
   const ArtristDelete = async (id: number) => {
