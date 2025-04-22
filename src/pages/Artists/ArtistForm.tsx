@@ -83,7 +83,6 @@ export default function ArtistEntry({ open, onClose }: ArtistEntryProps) {
 
   const [errorMsgs, setErrorMsgs] = useState<string>("");
   const [successMsgs, setSuccessMsgs] = useState<string>("");
-  const [showMessage, setShowMessage] = useState<boolean>(false);
   const [snackbarErrorOpen, setSnackbarErrorOpen] = useState<boolean>(false);
   const [snackbarSuccessOpen, setSnackbarSuccessOpen] =
     useState<boolean>(false);
