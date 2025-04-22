@@ -10,7 +10,6 @@ import {
 import { Upload as UploadIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
-import { Artist } from "../../types/artist";
 import SuccessBar from "../../components/Snackbar/SuccessBar";
 import ErrorBar from "../../components/Snackbar/ErrorBar";
 import CustomTable from "../../components/Table/CustomTable";
@@ -19,10 +18,11 @@ import { PaginationState } from "@tanstack/react-table";
 import ArtistEntry from "./ArtistForm";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useGetAllArtistList } from "../../services/Artists/ArtistServices";
+import ArtistImportExport from "./ArtistImportExport";
 
 const ArtistsList: React.FC = () => {
   const theme = useTheme();
-
+  const [importExportOpen, setImportExportOpen] = useState(false);
   const [openImportExport, setOpenImportExport] = useState<boolean>(false);
 
   const [openSuccess, setOpenSuccess] = useState<boolean>(false);
@@ -33,8 +33,7 @@ const ArtistsList: React.FC = () => {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [next, setNext] = useState<boolean>(false);
-  const [prev, setPrev] = useState<boolean>(false);
+
   const [pageSize, setPageSize] = useState<number>(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -65,6 +64,14 @@ const ArtistsList: React.FC = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleOpenImportExport = () => {
+    setImportExportOpen(true);
+  };
+
+  const handleCloseImportExport = () => {
+    setImportExportOpen(false);
   };
 
   const totalPages = artistList?.pagination?.pages || 1;
@@ -172,7 +179,8 @@ const ArtistsList: React.FC = () => {
               textTransform: "none",
             }}
             startIcon={<UploadIcon />}
-            onClick={() => setOpenImportExport(true)}
+            // onClick={() => setOpenImportExport(true)}
+            onClick={handleOpenImportExport}
           >
             Import/Export
           </Button>
@@ -224,17 +232,10 @@ const ArtistsList: React.FC = () => {
         message="Are you sure you want to delete this artist? This action cannot be undone."
       /> */}
 
-      {/* {openImportExport && (
-        <ArtistImportExport
-          open={openImportExport}
-          onClose={() => setOpenImportExport(false)}
-          onImportSuccess={() => {
-            fetchArtists();
-            setSuccessMessage("Artists imported successfully");
-            setOpenSuccess(true);
-          }}
-        />
-      )} */}
+      <ArtistImportExport
+        open={importExportOpen}
+        onClose={handleCloseImportExport}
+      />
     </Box>
   );
 };
