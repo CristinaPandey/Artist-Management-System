@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
-  Paper,
   Typography,
   useTheme,
   CircularProgress,
@@ -16,7 +15,6 @@ import SuccessBar from "../../components/Snackbar/SuccessBar";
 import ErrorBar from "../../components/Snackbar/ErrorBar";
 // import { useAuth } from "../../store/authContext";
 import { User, UserRole } from "../../types/user";
-import { ROLES } from "../../constants/roles";
 import { PaginationState } from "@tanstack/react-table";
 import CustomTable from "../../components/Table/CustomTable";
 import { UserTableListEntryHeader } from "../../constants/User/UserTableHeader";
@@ -51,15 +49,7 @@ type UserFormData = {
 const UsersList: React.FC = () => {
   const theme = useTheme();
   //   const { hasPermission } = useAuth();
-  const [users, setUsers] = useState<User[]>([]);
   const [page, setPage] = useState<number>(0);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  // const [loading, setLoading] = useState<boolean>(true);
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [openConfirmDialog, setOpenConfirmDialog] = useState<boolean>(false);
-  const [userToDelete, setUserToDelete] = useState<number | null>(null);
   const [openSuccess, setOpenSuccess] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [openError, setOpenError] = useState<boolean>(false);
@@ -68,18 +58,10 @@ const UsersList: React.FC = () => {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [next, setNext] = useState<boolean>(false);
-  const [prev, setPrev] = useState<boolean>(false);
   const [pageSize, setPageSize] = useState<number>(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors },
-  } = useForm<UserFormData>({
+  const {} = useForm<UserFormData>({
     resolver: yupResolver(schema) as any,
     defaultValues: {
       username: "",
@@ -90,9 +72,24 @@ const UsersList: React.FC = () => {
     },
   });
 
-  const { data: userList, isLoading } = useGetAllUserList();
+  useEffect(() => {
+    setPage(pagination.pageIndex + 1);
+    setPageSize(pagination.pageSize);
+  }, [pagination]);
 
-  // Mock function to fetch users
+  const {
+    data: userList,
+    isLoading,
+    isError,
+    error,
+  } = useGetAllUserList(page, pageSize);
+
+  useEffect(() => {
+    if (isError && error) {
+      setErrorMessage("Failed to fetch users. Please try again.");
+      setOpenError(true);
+    }
+  }, [isError, error]);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -102,17 +99,18 @@ const UsersList: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const totalPageCount = Math.ceil(users.length / pageSize);
+  const totalPages = userList?.pagination?.pages || 1;
+  const hasNextPage = page < totalPages;
+  const hasPrevPage = page > 1;
 
-  //   if (!hasPermission([ROLES.SUPER_ADMIN])) {
-  //     return (
-  //       <Box sx={{ p: 3 }}>
-  //         <Typography variant="h6" color="error">
-  //           Access Denied: You don't have permission to view this page.
-  //         </Typography>
-  //       </Box>
-  //     );
-  //   }
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setPagination((prev) => ({
+      ...prev,
+      pageSize: newPageSize,
+      pageIndex: 0,
+    }));
+  };
 
   return (
     <Box sx={{ width: "100%", p: { xs: 2, sm: 3 } }}>
@@ -183,19 +181,20 @@ const UsersList: React.FC = () => {
       ) : (
         <>
           {userList?.users.length === 0 ? (
-            <Paper sx={{ p: 4, textAlign: "center" }}>
-              <Typography>No songs found for this artist.</Typography>
-            </Paper>
+            <CustomTable
+              columns={UserTableListEntryHeader}
+              data={userList || []}
+            />
           ) : (
             <CustomTable
               columns={UserTableListEntryHeader}
-              data={userList.users || []}
+              data={userList?.users || []}
               pagination={pagination}
               setPagination={setPagination}
-              next={next}
-              prev={prev}
-              pageCount={totalPageCount}
-              setPageSize={setPageSize}
+              next={!hasNextPage}
+              prev={!hasPrevPage}
+              pageCount={totalPages}
+              setPageSize={handlePageSizeChange}
               loading={isLoading}
             />
           )}

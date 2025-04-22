@@ -1,34 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
   Button,
   Paper,
-  IconButton,
-  Chip,
-  Tooltip,
   CircularProgress,
   useTheme,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Upload as UploadIcon,
-  Download as DownloadIcon,
-  MusicNote as MusicNoteIcon,
-} from "@mui/icons-material";
+import { Upload as UploadIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../store/authContext";
+
 import { Artist } from "../../types/artist";
-import { ROLES } from "../../constants/roles";
-// import AddArtistDialog from "../Dialogs/AddArtistDialog";
-// import ConfirmDialog from "../../components/Dialog/ConfirmDialog";
 import SuccessBar from "../../components/Snackbar/SuccessBar";
 import ErrorBar from "../../components/Snackbar/ErrorBar";
-import ArtistImportExport from "./ArtistImportExport";
-import AddArtistDialog from "../../components/Dialogs/AddArtistDialog";
-import ConfirmDialog from "../../components/Dialogs/ConfirmDialog";
 import CustomTable from "../../components/Table/CustomTable";
 import { ArtistTableListEntryHeader } from "../../constants/Artist/ArtistTableListEntryHeader";
 import { PaginationState } from "@tanstack/react-table";
@@ -38,16 +22,6 @@ import { useGetAllArtistList } from "../../services/Artists/ArtistServices";
 
 const ArtistsList: React.FC = () => {
   const theme = useTheme();
-  //   const { hasPermission } = useAuth();
-  const navigate = useNavigate();
-
-  // const [artists, setArtists] = useState<Artist[]>([]);
-  const [page, setPage] = useState<number>(0);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [currentArtist, setCurrentArtist] = useState<Artist | null>(null);
-  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const [openImportExport, setOpenImportExport] = useState<boolean>(false);
 
@@ -64,7 +38,26 @@ const ArtistsList: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: artistList, isLoading } = useGetAllArtistList();
+  const [page, setPage] = useState<number>(0);
+
+  useEffect(() => {
+    setPage(pagination.pageIndex + 1);
+    setPageSize(pagination.pageSize);
+  }, [pagination]);
+
+  const {
+    data: artistList,
+    isLoading,
+    isError,
+    error,
+  } = useGetAllArtistList(page, pageSize);
+
+  useEffect(() => {
+    if (isError && error) {
+      setErrorMessage("Failed to fetch users. Please try again.");
+      setOpenError(true);
+    }
+  }, [isError, error]);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -72,6 +65,19 @@ const ArtistsList: React.FC = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const totalPages = artistList?.pagination?.pages || 1;
+  const hasNextPage = page < totalPages;
+  const hasPrevPage = page > 1;
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setPagination((prev) => ({
+      ...prev,
+      pageSize: newPageSize,
+      pageIndex: 0,
+    }));
   };
 
   // const totalPageCount = Math.ceil(artistList.length / pageSize);
@@ -190,10 +196,10 @@ const ArtistsList: React.FC = () => {
               data={artistList?.artists || []}
               pagination={pagination}
               setPagination={setPagination}
-              next={next}
-              prev={prev}
-              // pageCount={totalPageCount}
-              setPageSize={setPageSize}
+              next={!hasNextPage}
+              prev={!hasPrevPage}
+              pageCount={totalPages}
+              setPageSize={handlePageSizeChange}
               loading={isLoading}
             />
           )}

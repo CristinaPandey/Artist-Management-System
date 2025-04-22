@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import { axiosInstance } from "../../config/axiosInstance";
 
 type UserData = {
@@ -12,19 +17,6 @@ type UserData = {
   phone_number: string;
   date_of_birth: Date;
   role?: string;
-};
-
-type CreateUserData = {
-  username: string;
-  password: string;
-  email: string;
-  role?: string;
-  first_name?: string;
-  last_name?: string;
-  gender?: string;
-  address?: string;
-  phone_number?: string;
-  date_of_birth?: Date;
 };
 
 type UserResponse = {
@@ -51,15 +43,29 @@ export const useAddUserMutation = () => {
   });
 };
 
-const getAllUserList = async () => {
-  const response = await axiosInstance.get(`/api/users`);
+// const getAllUserList = async () => {
+//   const response = await axiosInstance.get(`/api/users`);
+//   return response.data;
+// };
+// export const useGetAllUserList = () => {
+//   return useQuery({
+//     queryKey: ["addUser"],
+//     queryFn: () => getAllUserList(),
+//     // retry: false,
+//   });
+// };
+const getAllUserList = async (page = 1, limit = 10) => {
+  const response = await axiosInstance.get(`/api/users`, {
+    params: { page, limit },
+  });
   return response.data;
 };
-export const useGetAllUserList = () => {
+
+export const useGetAllUserList = (page = 1, limit = 10) => {
   return useQuery({
-    queryKey: ["addUser"],
-    queryFn: () => getAllUserList(),
-    // retry: false,
+    queryKey: ["users", page, limit],
+    queryFn: () => getAllUserList(page, limit),
+    placeholderData: keepPreviousData,
   });
 };
 
