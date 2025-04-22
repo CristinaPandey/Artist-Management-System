@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { axiosInstance } from "../../config/axiosInstance";
 
 export type ArtistData = {
@@ -33,14 +38,17 @@ export const useAddArtistrMutation = () => {
   });
 };
 
-const getAllUserList = async () => {
-  const response = await axiosInstance.get(`/api/artists`);
+const getAllUserList = async (page = 1, limit = 10) => {
+  const response = await axiosInstance.get(`/api/artists`, {
+    params: { page, limit },
+  });
   return response.data;
 };
-export const useGetAllArtistList = () => {
+export const useGetAllArtistList = (page = 1, limit = 10) => {
   return useQuery({
-    queryKey: ["addArtist"],
-    queryFn: () => getAllUserList(),
+    queryKey: ["addArtist", page, limit],
+    queryFn: () => getAllUserList(page, limit),
+    placeholderData: keepPreviousData,
     // retry: false,
   });
 };

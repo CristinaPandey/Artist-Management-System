@@ -32,25 +32,40 @@ export interface Song {
 const SongsList: React.FC = () => {
   const theme = useTheme();
   const { artistId } = useParams<{ artistId: string }>();
-  // const [songs, setSongs] = useState<Song[]>([]);
-  // const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState<boolean>(false);
   const [editSong, setEditSong] = useState<Song | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   //   const { user } = useAuth();
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
-  const [next, setNext] = useState<boolean>(false);
-  const [prev, setPrev] = useState<boolean>(false);
+  const [openSuccess, setOpenSuccess] = useState<boolean>(false);
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [openError, setOpenError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [pageSize, setPageSize] = useState<number>(10);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: artistSongList, isLoading } = useGetAllArtistSongList();
+  const [page, setPage] = useState<number>(0);
+
+  useEffect(() => {
+    setPage(pagination.pageIndex + 1);
+    setPageSize(pagination.pageSize);
+  }, [pagination]);
+
+  const {
+    data: artistSongList,
+    isLoading,
+    isError,
+    error,
+  } = useGetAllArtistSongList(page, pageSize);
+
+  useEffect(() => {
+    if (isError && error) {
+      setErrorMessage("Failed to fetch users. Please try again.");
+      setOpenError(true);
+    }
+  }, [isError, error]);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -61,6 +76,19 @@ const SongsList: React.FC = () => {
   };
 
   // const totalPageCount = Math.ceil(artistSongList.length / pageSize);
+
+  const totalPages = artistSongList?.pagination?.pages || 1;
+  const hasNextPage = page < totalPages;
+  const hasPrevPage = page > 1;
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setPagination((prev) => ({
+      ...prev,
+      pageSize: newPageSize,
+      pageIndex: 0,
+    }));
+  };
 
   const handleDialogClose = () => {
     setIsAddDialogOpen(false);
@@ -126,12 +154,6 @@ const SongsList: React.FC = () => {
         {/* )} */}
       </Box>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
-
       {isLoading ? (
         <Box sx={{ display: "flex", justifyContent: "center", m: 5 }}>
           <CircularProgress />
@@ -148,10 +170,10 @@ const SongsList: React.FC = () => {
               data={artistSongList.songs || []}
               pagination={pagination}
               setPagination={setPagination}
-              next={next}
-              prev={prev}
-              // pageCount={totalPageCount}
-              setPageSize={setPageSize}
+              next={!hasNextPage}
+              prev={!hasPrevPage}
+              pageCount={totalPages}
+              setPageSize={handlePageSizeChange}
               loading={isLoading}
             />
           )}

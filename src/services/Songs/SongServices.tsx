@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { axiosInstance } from "../../config/axiosInstance";
 
 export type SongData = {
@@ -56,16 +61,18 @@ export const useAddArtistSongMutation = () => {
   });
 };
 
-const getAllArtistSongList = async () => {
+const getAllArtistSongList = async (page = 1, limit = 10) => {
   const userId = localStorage.getItem("user_id");
-  const response = await axiosInstance.get(`/api/artists/${userId}/songs`);
+  const response = await axiosInstance.get(`/api/artists/${userId}/songs`, {
+    params: { page, limit },
+  });
   return response.data;
 };
-export const useGetAllArtistSongList = () => {
+export const useGetAllArtistSongList = (page = 1, limit = 10) => {
   return useQuery({
-    queryKey: ["addArtistSongs"],
-    queryFn: () => getAllArtistSongList(),
-    // retry: false,
+    queryKey: ["addArtistSongs", page, limit],
+    queryFn: () => getAllArtistSongList(page, limit),
+    placeholderData: keepPreviousData,
   });
 };
 
