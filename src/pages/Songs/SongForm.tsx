@@ -99,6 +99,7 @@ const SongEntry: React.FC<SongEntryProps> = ({ open, onClose }) => {
         setSuccessMsgs("Song added Successful!");
         setSnackbarErrorOpen(false);
         setSnackbarSuccessOpen(true);
+        onClose();
       },
       onError: (error: any) => {
         if (isAxiosError(error) && error.response) {

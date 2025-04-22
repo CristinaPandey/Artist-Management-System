@@ -105,6 +105,7 @@ export default function ArtistEntry({ open, onClose }: ArtistEntryProps) {
         setSuccessMsgs("Artist created Successful!");
         setSnackbarErrorOpen(false);
         setSnackbarSuccessOpen(true);
+        onClose();
       },
       onError: (error) => {
         if (isAxiosError(error) && error.response) {

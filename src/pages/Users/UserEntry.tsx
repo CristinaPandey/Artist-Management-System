@@ -145,6 +145,7 @@ export default function UserEntry({ open, onClose }: UserEntryProps) {
         setSuccessMsgs("User created Successful!");
         setSnackbarErrorOpen(false);
         setSnackbarSuccessOpen(true);
+        onClose();
       },
       onError: (error) => {
         if (isAxiosError(error) && error.response) {
