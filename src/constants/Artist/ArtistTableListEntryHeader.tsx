@@ -121,7 +121,6 @@ const ActionsCellEdit = ({ row }: { row: any }) => {
   const [editOpen, setEditOpen] = useState<boolean>(false);
   const [errorMsgs, setErrorMsgs] = useState<string>("");
   const [successMsgs, setSuccessMsgs] = useState<string>("");
-  const [showMessage, setShowMessage] = useState<boolean>(false);
   const [snackbarErrorOpen, setSnackbarErrorOpen] = useState<boolean>(false);
   const [snackbarSuccessOpen, setSnackbarSuccessOpen] =
     useState<boolean>(false);
@@ -199,7 +198,7 @@ const ActionsCellEdit = ({ row }: { row: any }) => {
 
     updateUser(payload, {
       onSuccess: () => {
-        setSuccessMsgs("User updated successfully!");
+        setSuccessMsgs("Artist updated successfully!");
         setSnackbarSuccessOpen(true);
         setSnackbarErrorOpen(false);
         setEditOpen(false);
@@ -218,6 +217,16 @@ const ActionsCellEdit = ({ row }: { row: any }) => {
   return (
     <>
       <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <SuccessBar
+          snackbarOpen={snackbarSuccessOpen}
+          setSnackbarOpen={setSnackbarSuccessOpen}
+          message={successMsgs}
+        />
+        <ErrorBar
+          snackbarOpen={snackbarErrorOpen}
+          setSnackbarOpen={setSnackbarErrorOpen}
+          message={errorMsgs}
+        />
         <Modal open={editOpen} onClose={handleClose}>
           <ModalContent>
             <Box display="flex" justifyContent="space-between" mb={2}>
