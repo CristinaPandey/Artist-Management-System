@@ -83,7 +83,6 @@ export default function ArtistEntry({ open, onClose }: ArtistEntryProps) {
 
   const [errorMsgs, setErrorMsgs] = useState<string>("");
   const [successMsgs, setSuccessMsgs] = useState<string>("");
-  const [showMessage, setShowMessage] = useState<boolean>(false);
   const [snackbarErrorOpen, setSnackbarErrorOpen] = useState<boolean>(false);
   const [snackbarSuccessOpen, setSnackbarSuccessOpen] =
     useState<boolean>(false);
@@ -106,6 +105,7 @@ export default function ArtistEntry({ open, onClose }: ArtistEntryProps) {
         setSuccessMsgs("Artist created Successful!");
         setSnackbarErrorOpen(false);
         setSnackbarSuccessOpen(true);
+        onClose();
       },
       onError: (error) => {
         if (isAxiosError(error) && error.response) {

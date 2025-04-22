@@ -25,6 +25,28 @@ type UserResponse = {
   token: string;
 };
 
+export type ApiResponse<T> = {
+  success: boolean;
+  message: string;
+  data: T;
+};
+
+export type PaginatedResponse<T> = ApiResponse<{
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}>;
+
+export type ImportResponse = ApiResponse<{
+  processed: number;
+  created: number;
+  updated: number;
+  failed: number;
+  errors?: string[];
+}>;
+
 const addArtist = async (data: ArtistData): Promise<UserResponse> => {
   const response = await axiosInstance.post("/api/artists", data);
   return response.data;
@@ -101,5 +123,110 @@ export const useDeleteArtist = (id_no: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["addArtist"] });
     },
+  });
+};
+
+/**
+ * Import artists from CSV file
+ * @param file - CSV file containing artist data
+ * @returns Import operation results
+ */
+export const importArtists = async (file: File): Promise<ImportResponse> => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await axiosInstance.post("/api/artists/import", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    // Enhanced error handling to extract API error messages
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error("Failed to import artists");
+  }
+};
+
+/**
+ * React Query hook for importing artists from CSV
+ */
+export const useImportArtists = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: importArtists,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["artists"] });
+    },
+  });
+};
+
+/**
+ * Export artists to CSV file
+ * @returns Promise that resolves when download starts
+ */
+export const exportArtists = async (): Promise<boolean> => {
+  try {
+    const response = await axiosInstance.get("/api/artists/export", {
+      responseType: "blob",
+    });
+
+    // Get filename from content-disposition header if available
+    const contentDisposition = response.headers["content-disposition"];
+    let filename = "artists_export.csv";
+
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="?([^"]*)"?/);
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1];
+      }
+    }
+
+    // Create and trigger download
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    }, 100);
+
+    return true;
+  } catch (error: any) {
+    if (error.response?.data) {
+      // Try to parse error blob
+      try {
+        const errorBlob = error.response.data;
+        const errorText = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsText(errorBlob);
+        });
+
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.message || "Failed to export artists");
+      } catch (parseError) {
+        throw new Error("Failed to export artists");
+      }
+    }
+    throw new Error("Failed to export artists");
+  }
+};
+
+/**
+ * React Query hook for exporting artists to CSV
+ */
+export const useExportArtists = () => {
+  return useMutation({
+    mutationFn: exportArtists,
   });
 };

@@ -1,28 +1,37 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
-  Typography,
-  Tabs,
-  Tab,
-  LinearProgress,
-  Alert,
+  DialogContent,
+  DialogTitle,
+  Divider,
   IconButton,
-  InputLabel,
   Paper,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
   useTheme,
 } from "@mui/material";
 import {
+  CloudUpload as UploadIcon,
   Close as CloseIcon,
-  FileUpload as FileUploadIcon,
-  Download as DownloadIcon,
-  Description as DescriptionIcon,
+  FileDownload as DownloadIcon,
+  Description as FileIcon,
+  Check as CheckIcon,
+  Error as ErrorIcon,
+  Info as InfoIcon,
 } from "@mui/icons-material";
-import { Artist } from "../../types/artist";
+import {
+  ImportResponse,
+  useExportArtists,
+  useImportArtists,
+} from "../../services/Artists/ArtistServices";
+import SuccessBar from "../../components/Snackbar/SuccessBar";
+import ErrorBar from "../../components/Snackbar/ErrorBar";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -30,296 +39,425 @@ interface TabPanelProps {
   value: number;
 }
 
-function TabPanel(props: TabPanelProps) {
+const TabPanel: React.FC<TabPanelProps> = (props) => {
   const { children, value, index, ...other } = props;
 
   return (
     <div
       role="tabpanel"
       hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
+      id={`artist-import-export-tabpanel-${index}`}
+      aria-labelledby={`artist-import-export-tab-${index}`}
       {...other}
+      style={{ padding: "16px 0" }}
     >
-      {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
+      {value === index && children}
     </div>
   );
-}
+};
 
 interface ArtistImportExportProps {
   open: boolean;
   onClose: () => void;
-  onImportSuccess: () => void;
 }
 
 const ArtistImportExport: React.FC<ArtistImportExportProps> = ({
   open,
   onClose,
-  onImportSuccess,
 }) => {
   const theme = useTheme();
-  const [tabValue, setTabValue] = useState(0);
+  const [activeTab, setActiveTab] = useState<number>(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [importResult, setImportResult] = useState<ImportResponse | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [errorMsgs, setErrorMsgs] = useState<string>("");
+  const [successMsgs, setSuccessMsgs] = useState<string>("");
+  const [snackbarErrorOpen, setSnackbarErrorOpen] = useState<boolean>(false);
+  const [snackbarSuccessOpen, setSnackbarSuccessOpen] =
+    useState<boolean>(false);
 
-  const handleChangeTab = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-    // Reset state when switching tabs
-    setSelectedFile(null);
-    setError(null);
-    setSuccess(null);
-    setProgress(0);
+  // Import/Export mutations
+  const importArtistsMutation = useImportArtists();
+  const exportArtistsMutation = useExportArtists();
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+    resetState();
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const resetState = () => {
+    setSelectedFile(null);
+    setImportResult(null);
+    setFileError(null);
+    importArtistsMutation.reset();
+    exportArtistsMutation.reset();
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
 
-      if (file.type !== "text/csv") {
-        setError("Please select a CSV file");
+      if (file.type !== "text/csv" && !file.name.endsWith(".csv")) {
+        setFileError("Please select a valid CSV file");
+        importArtistsMutation.reset();
         return;
       }
 
       setSelectedFile(file);
-      setError(null);
+      setImportResult(null);
+      setFileError(null);
+      importArtistsMutation.reset();
     }
   };
 
   const handleImport = async () => {
-    if (!selectedFile) {
-      setError("Please select a file to import");
-      return;
-    }
-
-    setUploading(true);
-    setProgress(0);
-    setError(null);
-    setSuccess(null);
+    if (!selectedFile) return;
 
     try {
-      // Simulate file upload with progress
-      for (let i = 0; i <= 100; i += 10) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        setProgress(i);
-      }
-
-      // Mock successful import
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setSuccess("Artists imported successfully");
+      const result = await importArtistsMutation.mutateAsync(selectedFile);
+      setImportResult(result);
       setSelectedFile(null);
 
       // Reset file input
-      const fileInput = document.getElementById(
-        "csv-file-upload"
-      ) as HTMLInputElement;
-      if (fileInput) fileInput.value = "";
-
-      onImportSuccess();
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      setSuccessMsgs("Artists imported successfully!");
+      setSnackbarSuccessOpen(true);
+      onClose();
     } catch (error) {
-      setError("Failed to import artists");
-    } finally {
-      setUploading(false);
+      setErrorMsgs(
+        error instanceof Error
+          ? error.message
+          : "Failed to import artists. Please try again."
+      );
+      setSnackbarErrorOpen(true);
     }
   };
 
-  const handleExport = async () => {};
+  const handleExport = async () => {
+    try {
+      await exportArtistsMutation.mutateAsync();
+
+      setSuccessMsgs(
+        "Artists exported successfully! Your download should start shortly."
+      );
+      setSnackbarSuccessOpen(true);
+      onClose();
+    } catch (error) {
+      setErrorMsgs(
+        error instanceof Error
+          ? error.message
+          : "Failed to export artists. Please try again."
+      );
+      setSnackbarErrorOpen(true);
+    }
+  };
+
+  const handleClose = () => {
+    resetState();
+    onClose();
+  };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle
-        sx={{
-          fontSize: "16px",
-          fontWeight: 600,
-          lineHeight: "19px",
-          color: "#212121",
-          width: "max-content",
+    <>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 2 },
         }}
       >
-        Artist Import/Export
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{ position: "absolute", right: 8, top: 8 }}
+        <DialogTitle
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            pb: 1,
+          }}
         >
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
+          <Typography variant="h6" component="div">
+            Artist Data Management
+          </Typography>
+          <IconButton aria-label="close" onClick={handleClose} size="small">
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
 
-      <DialogContent dividers>
-        <Tabs
-          value={tabValue}
-          onChange={handleChangeTab}
-          sx={{ borderBottom: 1, borderColor: "divider" }}
-        >
-          <Tab label="Import" />
-          <Tab label="Export" />
-        </Tabs>
+        <Box sx={{ borderBottom: 1, borderColor: "divider", px: 3 }}>
+          <Tabs
+            value={activeTab}
+            onChange={handleTabChange}
+            aria-label="Import/Export tabs"
+            textColor="primary"
+            indicatorColor="primary"
+          >
+            <Tab label="Import" id="artist-import-export-tab-0" />
+            <Tab label="Export" id="artist-import-export-tab-1" />
+          </Tabs>
+        </Box>
 
-        <TabPanel value={tabValue} index={0}>
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="body1" gutterBottom>
-              Upload a CSV file to import artists in bulk. The file should
-              contain the following columns:
-            </Typography>
-            <Box
-              component="code"
-              sx={{
-                display: "block",
-                p: 1,
-                bgcolor: "grey.100",
-                borderRadius: 1,
-                mb: 2,
-              }}
-            >
-              name,genre,country,formationYear
-            </Box>
-          </Box>
+        <DialogContent dividers>
+          <TabPanel value={activeTab} index={0}>
+            <Stack spacing={3}>
+              <Box>
+                <Typography variant="body1" gutterBottom>
+                  Upload a CSV file to import artists in bulk. The file should
+                  contain the following columns:
+                </Typography>
 
-          <Box sx={{ mb: 3 }}>
-            <input
-              accept=".csv"
-              style={{ display: "none" }}
-              id="csv-file-upload"
-              type="file"
-              onChange={handleFileChange}
-              disabled={uploading}
-            />
-            <InputLabel htmlFor="csv-file-upload">
-              <Button
-                component="span"
-                variant="outlined"
-                sx={{
-                  borderRadius: "100px",
-                  padding: "6px 24px",
-                  borderColor: "#616161",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  lineHeight: "20px",
-                  color: theme.palette.secondary.main,
-                  textTransform: "none",
-                }}
-                startIcon={<FileUploadIcon />}
-                disabled={uploading}
-              >
-                Select CSV File
-              </Button>
-            </InputLabel>
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    p: 2,
+                    backgroundColor: theme.palette.grey[50],
+                    borderRadius: 1,
+                    fontFamily: "monospace",
+                  }}
+                >
+                  <code>name,genre,country,formed_year,biography</code>
+                </Paper>
 
-            {selectedFile && (
-              <Paper
-                sx={{
-                  p: 2,
-                  mt: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <DescriptionIcon color="primary" />
-                <Typography>{selectedFile.name}</Typography>
-              </Paper>
-            )}
-          </Box>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
+                  <Box
+                    component="span"
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      mr: 0.5,
+                    }}
+                  >
+                    <InfoIcon fontSize="small" color="info" />
+                  </Box>
+                  Note: If an artist with the same name already exists, their
+                  record will be updated.
+                </Typography>
+              </Box>
 
-          {progress > 0 && progress < 100 && (
-            <Box sx={{ width: "100%", mb: 2 }}>
-              <LinearProgress variant="determinate" value={progress} />
-              <Typography variant="body2" align="center" sx={{ mt: 1 }}>
-                {progress}%
-              </Typography>
-            </Box>
-          )}
+              <Divider />
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-          {success && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {success}
-            </Alert>
-          )}
+              <Box>
+                <input
+                  type="file"
+                  accept=".csv"
+                  style={{ display: "none" }}
+                  id="artist-csv-upload"
+                  ref={fileInputRef}
+                  onChange={handleFileSelect}
+                  disabled={importArtistsMutation.isPending}
+                />
 
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <label htmlFor="artist-csv-upload">
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    startIcon={<UploadIcon />}
+                    disabled={importArtistsMutation.isPending}
+                    sx={{
+                      borderRadius: 2,
+                      px: 3,
+                    }}
+                  >
+                    Select CSV File
+                  </Button>
+                </label>
+
+                {selectedFile && (
+                  <Paper
+                    sx={{
+                      mt: 2,
+                      p: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      borderRadius: 2,
+                    }}
+                  >
+                    <FileIcon
+                      sx={{ mr: 1, color: theme.palette.primary.main }}
+                    />
+                    <Typography variant="body2">
+                      {selectedFile.name} (
+                      {(selectedFile.size / 1024).toFixed(1)} KB)
+                    </Typography>
+                  </Paper>
+                )}
+
+                {/* Show custom file error */}
+                {fileError && (
+                  <Paper
+                    sx={{
+                      mt: 2,
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: theme.palette.error.light,
+                      color: theme.palette.error.contrastText,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+                      <ErrorIcon sx={{ mr: 1 }} />
+                      <Typography variant="body2">{fileError}</Typography>
+                    </Box>
+                  </Paper>
+                )}
+
+                {/* Show mutation error */}
+                {importArtistsMutation.isError && (
+                  <Paper
+                    sx={{
+                      mt: 2,
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: theme.palette.error.light,
+                      color: theme.palette.error.contrastText,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+                      <ErrorIcon sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        {importArtistsMutation.error instanceof Error
+                          ? importArtistsMutation.error.message
+                          : "Failed to import artists"}
+                      </Typography>
+                    </Box>
+                  </Paper>
+                )}
+              </Box>
+            </Stack>
+          </TabPanel>
+
+          <TabPanel value={activeTab} index={1}>
+            <Stack spacing={3}>
+              <Box>
+                <Typography variant="body1" gutterBottom>
+                  Export all artists to a CSV file. This will download a file
+                  containing all artist records with the following columns:
+                </Typography>
+
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    p: 2,
+                    backgroundColor: theme.palette.grey[50],
+                    borderRadius: 1,
+                    fontFamily: "monospace",
+                  }}
+                >
+                  <code>
+                    id,name,genre,country,formed_year,biography,created_at,updated_at
+                  </code>
+                </Paper>
+              </Box>
+
+              <Divider />
+
+              <Box>
+                {exportArtistsMutation.isError && (
+                  <Paper
+                    sx={{
+                      mb: 2,
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: theme.palette.error.light,
+                      color: theme.palette.error.contrastText,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+                      <ErrorIcon sx={{ mr: 1 }} />
+                      <Typography variant="body2">
+                        {exportArtistsMutation.error instanceof Error
+                          ? exportArtistsMutation.error.message
+                          : "Failed to export artists"}
+                      </Typography>
+                    </Box>
+                  </Paper>
+                )}
+              </Box>
+            </Stack>
+          </TabPanel>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button
+            onClick={handleClose}
+            variant="outlined"
+            sx={{ borderRadius: 2 }}
+          >
+            Close
+          </Button>
+
+          {activeTab === 0 && (
             <Button
-              variant="contained"
-              sx={{
-                borderRadius: "100px",
-                padding: "6px 24px",
-                fontSize: "14px",
-                fontWeight: 600,
-                lineHeight: "20px",
-                textTransform: "none",
-                backgroundColor: theme.palette.secondary.main,
-                "&:hover": {
-                  bgcolor: theme.palette.primary.main,
-                },
-              }}
               onClick={handleImport}
-              disabled={!selectedFile || uploading}
-              startIcon={<FileUploadIcon />}
-            >
-              Import
-            </Button>
-          </Box>
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={1}>
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="body1" gutterBottom>
-              Export all artists to a CSV file. This will download a file
-              containing all artist records.
-            </Typography>
-          </Box>
-
-          {progress > 0 && progress < 100 && (
-            <Box sx={{ width: "100%", mb: 2 }}>
-              <LinearProgress variant="determinate" value={progress} />
-              <Typography variant="body2" align="center" sx={{ mt: 1 }}>
-                Preparing download...
-              </Typography>
-            </Box>
-          )}
-
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-          {success && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {success}
-            </Alert>
-          )}
-
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button
               variant="contained"
+              color="primary"
+              disabled={!selectedFile || importArtistsMutation.isPending}
+              startIcon={
+                importArtistsMutation.isPending ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <UploadIcon />
+                )
+              }
               sx={{
-                borderRadius: "100px",
-                padding: "6px 24px",
-                fontSize: "14px",
-                fontWeight: 600,
-                lineHeight: "20px",
-                textTransform: "none",
-                backgroundColor: theme.palette.secondary.main,
-                "&:hover": {
-                  bgcolor: theme.palette.primary.main,
-                },
+                borderRadius: 2,
+                px: 3,
               }}
-              onClick={handleExport}
-              startIcon={<DownloadIcon />}
             >
-              Export to CSV
+              {importArtistsMutation.isPending
+                ? "Importing..."
+                : "Import Artists"}
             </Button>
-          </Box>
-        </TabPanel>
-      </DialogContent>
-    </Dialog>
+          )}
+
+          {activeTab === 1 && (
+            <Button
+              onClick={handleExport}
+              variant="contained"
+              color="primary"
+              disabled={exportArtistsMutation.isPending}
+              startIcon={
+                exportArtistsMutation.isPending ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <DownloadIcon />
+                )
+              }
+              sx={{
+                borderRadius: 2,
+                px: 3,
+              }}
+            >
+              {exportArtistsMutation.isPending
+                ? "Exporting..."
+                : "Export to CSV"}
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
+      <SuccessBar
+        snackbarOpen={snackbarSuccessOpen}
+        setSnackbarOpen={setSnackbarSuccessOpen}
+        message={successMsgs}
+      />
+      <ErrorBar
+        snackbarOpen={snackbarErrorOpen}
+        setSnackbarOpen={setSnackbarErrorOpen}
+        message={errorMsgs}
+      />
+    </>
   );
 };
 

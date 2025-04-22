@@ -19,7 +19,6 @@ import { Edit } from "@mui/icons-material";
 import ErrorBar from "../../components/Snackbar/ErrorBar";
 import SuccessBar from "../../components/Snackbar/SuccessBar";
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditStockModal from "../../pages/Users/EditModal";
 import { Artist } from "../../types/artist";
 import {
   ArtistData,
@@ -122,7 +121,6 @@ const ActionsCellEdit = ({ row }: { row: any }) => {
   const [editOpen, setEditOpen] = useState<boolean>(false);
   const [errorMsgs, setErrorMsgs] = useState<string>("");
   const [successMsgs, setSuccessMsgs] = useState<string>("");
-  const [showMessage, setShowMessage] = useState<boolean>(false);
   const [snackbarErrorOpen, setSnackbarErrorOpen] = useState<boolean>(false);
   const [snackbarSuccessOpen, setSnackbarSuccessOpen] =
     useState<boolean>(false);
@@ -200,7 +198,7 @@ const ActionsCellEdit = ({ row }: { row: any }) => {
 
     updateUser(payload, {
       onSuccess: () => {
-        setSuccessMsgs("User updated successfully!");
+        setSuccessMsgs("Artist updated successfully!");
         setSnackbarSuccessOpen(true);
         setSnackbarErrorOpen(false);
         setEditOpen(false);
@@ -219,6 +217,16 @@ const ActionsCellEdit = ({ row }: { row: any }) => {
   return (
     <>
       <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <SuccessBar
+          snackbarOpen={snackbarSuccessOpen}
+          setSnackbarOpen={setSnackbarSuccessOpen}
+          message={successMsgs}
+        />
+        <ErrorBar
+          snackbarOpen={snackbarErrorOpen}
+          setSnackbarOpen={setSnackbarErrorOpen}
+          message={errorMsgs}
+        />
         <Modal open={editOpen} onClose={handleClose}>
           <ModalContent>
             <Box display="flex" justifyContent="space-between" mb={2}>
@@ -409,14 +417,16 @@ const ActionCell = ({ data }: { data: any }) => {
   const [successBarOpen, setSuccessBarOpen] = useState<boolean>(false);
   const [errorMsgs, setErrorMsgs] = useState<string>("");
 
-  const { mutate: deleteArtist } = useDeleteArtist(data?.row?.original?.id);
+  const artistId = data?.original?.id || data?.row?.original?.id;
+
+  const { mutate: deleteArtist } = useDeleteArtist(artistId);
 
   const handleDelete = () => {
     setConfirmOpen(true);
   };
 
   const handleConfirmDelete = () => {
-    const deleteId = data.row.original.id;
+    const deleteId = data?.row?.original?.id;
     deleteArtist(deleteId, {
       onSuccess: () => {
         setConfirmOpen(false);

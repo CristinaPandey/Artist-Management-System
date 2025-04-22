@@ -47,6 +47,7 @@ import {
 import { useAuth } from "../store/authContext";
 import { ROLES } from "../constants/roles";
 import { useLocation, useNavigate } from "react-router-dom";
+// import { useGetDashboardInfo } from "../services/DashboardServices";
 
 // Mock data for demonstration
 const recentActivities = [
@@ -122,6 +123,9 @@ const Dashboard = () => {
   >(null);
 
   const actionsOpen = Boolean(actionsAnchorEl);
+
+  // const { data: dashboardInfo } = useGetDashboardInfo();
+  // console.log(dashboardInfo);
 
   const handleActionsClick = (
     event: React.MouseEvent<HTMLButtonElement>,

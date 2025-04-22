@@ -209,6 +209,16 @@ const ActionsCellEdit = ({ row }: { row: any }) => {
   return (
     <>
       <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <SuccessBar
+          snackbarOpen={snackbarSuccessOpen}
+          setSnackbarOpen={setSnackbarSuccessOpen}
+          message={successMsgs}
+        />
+        <ErrorBar
+          snackbarOpen={snackbarErrorOpen}
+          setSnackbarOpen={setSnackbarErrorOpen}
+          message={errorMsgs}
+        />
         <Modal open={editOpen} onClose={handleClose}>
           <ModalContent>
             <Box display="flex" justifyContent="space-between" mb={2}>

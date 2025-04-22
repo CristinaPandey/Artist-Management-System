@@ -17,7 +17,6 @@ import { Edit } from "@mui/icons-material";
 import ErrorBar from "../../components/Snackbar/ErrorBar";
 import SuccessBar from "../../components/Snackbar/SuccessBar";
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditStockModal from "../../pages/Users/EditModal";
 import { Song } from "../../pages/Songs/SongsList";
 import {
   useDeleteArtistSong,
@@ -190,7 +189,7 @@ const ActionsCellEdit = ({ row }: { row: any }) => {
 
     updateArtistSong(payload, {
       onSuccess: () => {
-        setSuccessMsgs("User updated successfully!");
+        setSuccessMsgs("Song updated successfully!");
         setSnackbarSuccessOpen(true);
         setSnackbarErrorOpen(false);
         setEditOpen(false);
@@ -209,6 +208,16 @@ const ActionsCellEdit = ({ row }: { row: any }) => {
   return (
     <>
       <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <SuccessBar
+          snackbarOpen={snackbarSuccessOpen}
+          setSnackbarOpen={setSnackbarSuccessOpen}
+          message={successMsgs}
+        />
+        <ErrorBar
+          snackbarOpen={snackbarErrorOpen}
+          setSnackbarOpen={setSnackbarErrorOpen}
+          message={errorMsgs}
+        />
         <Modal open={editOpen} onClose={handleClose}>
           <ModalContent>
             <Box display="flex" justifyContent="space-between" mb={2}>
