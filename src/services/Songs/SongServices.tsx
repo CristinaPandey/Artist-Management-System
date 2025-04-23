@@ -53,11 +53,14 @@ const addArtistSongs = async (data: SongData): Promise<UserResponse> => {
 };
 
 export const useAddArtistSongMutation = () => {
-  // ✅ Return the mutation hook
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addArtistSongs,
-    mutationKey: ["addArtistSongs"],
+    mutationKey: ["addArtistSongsPost"],
     retry: false,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["addArtistSongs"] });
+    },
   });
 };
 

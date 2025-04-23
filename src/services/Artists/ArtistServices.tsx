@@ -53,10 +53,14 @@ const addArtist = async (data: ArtistData): Promise<UserResponse> => {
 };
 
 export const useAddArtistrMutation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addArtist,
     mutationKey: ["addArtist"],
     retry: false,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["addArtist"] });
+    },
   });
 };
 
@@ -83,7 +87,7 @@ export const usePutArtist = (id_no: number) => {
   };
   return useMutation({
     mutationFn: () => ArtristPut(id_no),
-    mutationKey: ["ArtistDeArtristPutlete", id_no],
+    mutationKey: ["ArtristList", id_no],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["addArtist"] });
     },
@@ -103,7 +107,7 @@ export const useUpdateArtist = (userId: number) => {
 
   return useMutation({
     mutationFn: (data: Partial<ArtistData>) => updateArtist(userId, data),
-    mutationKey: ["ArtistDeArtristPutlete", userId],
+    mutationKey: ["updateArtrist", userId],
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["addArtist"] });
     },

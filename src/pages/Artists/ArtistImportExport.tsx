@@ -21,7 +21,6 @@ import {
   Close as CloseIcon,
   FileDownload as DownloadIcon,
   Description as FileIcon,
-  Check as CheckIcon,
   Error as ErrorIcon,
   Info as InfoIcon,
 } from "@mui/icons-material";
@@ -124,7 +123,6 @@ const ArtistImportExport: React.FC<ArtistImportExportProps> = ({
       setImportResult(result);
       setSelectedFile(null);
 
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -295,7 +293,6 @@ const ArtistImportExport: React.FC<ArtistImportExportProps> = ({
                   </Paper>
                 )}
 
-                {/* Show custom file error */}
                 {fileError && (
                   <Paper
                     sx={{
@@ -313,7 +310,6 @@ const ArtistImportExport: React.FC<ArtistImportExportProps> = ({
                   </Paper>
                 )}
 
-                {/* Show mutation error */}
                 {importArtistsMutation.isError && (
                   <Paper
                     sx={{

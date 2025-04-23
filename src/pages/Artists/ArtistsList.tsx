@@ -214,24 +214,6 @@ const ArtistsList: React.FC = () => {
         </>
       )}
 
-      {/* {openDialog && (
-        <AddArtistDialog
-          open={openDialog}
-          onClose={handleCloseDialog}
-          onSave={handleSaveArtist}
-          artist={currentArtist}
-          isEdit={isEdit}
-        />
-      )}
-
-      <ConfirmDialog
-        open={openConfirmDialog}
-        onClose={() => setOpenConfirmDialog(false)}
-        onConfirm={confirmDelete}
-        title="Confirm Delete"
-        message="Are you sure you want to delete this artist? This action cannot be undone."
-      /> */}
-
       <ArtistImportExport
         open={importExportOpen}
         onClose={handleCloseImportExport}

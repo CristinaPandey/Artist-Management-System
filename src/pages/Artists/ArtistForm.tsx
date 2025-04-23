@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import axios, { isAxiosError } from "axios";
+import { useState } from "react";
+import { isAxiosError } from "axios";
 import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -8,9 +8,7 @@ import {
   IconButton,
   InputAdornment,
   InputLabel,
-  MenuItem,
   Modal,
-  Select,
   TextField,
   Typography,
   styled,
@@ -19,17 +17,14 @@ import {
 import RoundedButton from "../../components/Button/Button";
 import SuccessBar from "../../components/Snackbar/SuccessBar";
 import ErrorBar from "../../components/Snackbar/ErrorBar";
-import { UserRole } from "../../types";
 import CloseIcon from "@mui/icons-material/Close";
 import {
   ArtistData,
   useAddArtistrMutation,
 } from "../../services/Artists/ArtistServices";
-import { Cake } from "@mui/icons-material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { format } from "date-fns";
 
 const schema = yup
   .object()
@@ -119,8 +114,6 @@ export default function ArtistEntry({ open, onClose }: ArtistEntryProps) {
       },
     });
   };
-
-  // Helper function to extract error messages
 
   return (
     <>
@@ -242,8 +235,6 @@ export default function ArtistEntry({ open, onClose }: ArtistEntryProps) {
                           view="year"
                           disableFuture
                           sx={{ width: "300px" }}
-                          // value={field.value}
-                          // {...field}
                           onChange={(newValue: any) => field.onChange(newValue)}
                           slotProps={{
                             textField: {

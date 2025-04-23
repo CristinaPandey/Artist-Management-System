@@ -4,7 +4,6 @@ import {
   Box,
   Typography,
   Button,
-  Alert,
   useTheme,
   CircularProgress,
   Paper,
@@ -16,7 +15,6 @@ import { PaginationState } from "@tanstack/react-table";
 import SongEntry from "./SongForm";
 import { SongsTableListEntryHeader } from "../../constants/Songs/SongsTableHeader";
 import { useGetAllArtistSongList } from "../../services/Songs/SongServices";
-// import AddSongDialog from "../Dialogs/AddSongDialog";
 // import { useAuth } from "../../contexts/AuthContext";
 
 export interface Song {
@@ -39,8 +37,6 @@ const SongsList: React.FC = () => {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [openSuccess, setOpenSuccess] = useState<boolean>(false);
-  const [successMessage, setSuccessMessage] = useState<string>("");
   const [openError, setOpenError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [pageSize, setPageSize] = useState<number>(10);
@@ -160,14 +156,14 @@ const SongsList: React.FC = () => {
         </Box>
       ) : (
         <>
-          {artistSongList.songs.length === 0 ? (
+          {artistSongList?.songs.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: "center" }}>
               <Typography>No songs found for this artist.</Typography>
             </Paper>
           ) : (
             <CustomTable
               columns={SongsTableListEntryHeader}
-              data={artistSongList.songs || []}
+              data={artistSongList?.songs || []}
               pagination={pagination}
               setPagination={setPagination}
               next={!hasNextPage}

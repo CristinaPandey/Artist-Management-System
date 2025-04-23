@@ -1,10 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   TextField,
-  Button,
-  Grid,
-  FormHelperText,
   Modal,
   Typography,
   styled,
@@ -283,7 +280,7 @@ const SongEntry: React.FC<SongEntryProps> = ({ open, onClose }) => {
               <RoundedButton
                 title1="Add Song"
                 onClick1={handleSubmit(handleSongSubmit)}
-                // loading={isPending}
+                loading={isPending}
               />
             </Box>
           </Box>

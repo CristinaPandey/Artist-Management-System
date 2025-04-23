@@ -36,10 +36,14 @@ const addUser = async (data: UserData): Promise<UserResponse> => {
 };
 
 export const useAddUserMutation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addUser,
     mutationKey: ["addUser"],
     retry: false,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
   });
 };
 
@@ -84,7 +88,7 @@ export const useUpdateUser = (userId: number) => {
     mutationFn: (data: Partial<UserData>) => updateUser(userId, data),
     mutationKey: ["updateUser", userId],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["addUser"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
     retry: false,
   });
@@ -100,7 +104,7 @@ export const useDeleteUser = (id_no: number) => {
     mutationFn: () => UserDelete(id_no),
     mutationKey: ["UserDelete", id_no],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["addUser"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 };
